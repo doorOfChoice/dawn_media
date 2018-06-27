@@ -1,20 +1,21 @@
 package model
+
 /**
-	该文件用来放置模型的定义
- */
+该文件用来放置模型的定义
+*/
 import (
 	"time"
 )
 
 type Model struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time  `json:"createAt"`
-	UpdatedAt time.Time  `json:"updateAt"`
-	DeletedAt *time.Time `gorm:"deleteAt"`
+	ID         int       `gorm:"primary_key" json:"id"`
+	CreatedAt  time.Time `json:"createAt"`
+	UpdatedAt  time.Time `json:"updateAt"`
+	SoftDelete int       `gorm:"default:0"`
 }
 
 type User struct {
-	*Model
+	Model
 	Username    string        `gorm:"type:char(64);not null" json:"username"`
 	Password    string        `gorm:"type:char(64);not null" json:"password"`
 	Sex         int           `gorm:"type:tinyint;default 0" json:"sex"`
@@ -22,47 +23,48 @@ type User struct {
 }
 
 type Media struct {
-	*Model
-	Title            string      `gorm:"type:varchar(255);not null;index"`
-	Introduction     string      `gorm:"type:varchar(1000);not null"`
-	DownloadState    int8        `gorm:"type:tinyint;default 0"`
-	Categories       []*Category `gorm:"many2many:media_categories"`
-	MediaSharpnesses []*MediaSharpness
+	Model
+	Title            string            `gorm:"type:varchar(255);not null;index" json:"title"`
+	Introduction     string            `gorm:"type:varchar(1000);not null" json:"introduction"`
+	DownloadState    int8              `gorm:"type:tinyint;default 0" json:"downloadState"`
+	Categories       []*Category       `gorm:"many2many:media_categories" json:"categories"`
+	MediaSharpnesses []*MediaSharpness `json:"mediaSharpnesses"`
 }
 
 type Category struct {
-	*Model
-	Name   string   `gorm:"type:varchar(100);not null;index"`
-	Medias []*Media `gorm:"many2many:media_categories"`
+	Model
+	Name   string   `gorm:"type:varchar(100);not null;index" json:"name"`
+	Medias []*Media `gorm:"many2many:media_categories" json:"medias"`
 }
 
 type Sharpness struct {
-	*Model
-	Name string `gorm:"type:char(30);not null;index"`
+	Model
+	Name string `gorm:"type:char(30);not null;index" json:"name"`
 }
 
 type UserRecord struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	User      *User
-	UserID    uint
-	Media     *Media
-	MediaID   uint
+	ID        int       `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	User      *User     `json:"user"`
+	UserID    int       `gorm:"index" json:"-"`
+	Media     *Media    `json:"media"`
+	MediaID   int       `gorm:"index" json:"-"`
 }
 
 type Star struct {
-	*Model
-	User    *User
-	UserID  uint
-	Media   *Media
-	MediaID uint
+	Model
+	User    *User  `json:"user"`
+	UserID  int    `gorm:"index" json:"-"`
+	Media   *Media `json:"media"`
+	MediaID int    `gorm:"index"json:"-"`
 }
 
 type MediaSharpness struct {
-	ID          uint `gorm:"primary_key;auto_increment"`
-	Media       *Media
-	MediaID     uint
-	Sharpness   *Sharpness
-	SharpnessId uint
-	Uri         string
+	ID          int        `gorm:"primary_key;auto_increment" json:"id"`
+	Media       *Media     `json:"media"`
+	MediaID     int        `gorm:"index" json:"-"`
+	Sharpness   *Sharpness `json:"sharpness"`
+	SharpnessId int        `gorm:"index" json:"-"`
+	Uri         string     `json:"uri"`
 }
