@@ -3,111 +3,115 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"media_framwork/model"
-	"media_framwork/service"
 	"net/http"
+	"strings"
+	"media_framwork/tool"
+	"github.com/jinzhu/gorm"
 )
 
 /**
-新建标签控制器
-	参数
-	{
-		"name" : ?
+管理分类页面
+ */
+func PageCategoryManage(c *gin.Context) {
+	var cs []model.Category
+	var curDB *gorm.DB
+	trash := c.DefaultQuery("trash", "0")
+	//非回收站
+	if trash == "0" {
+		curDB = model.UnDeleteDB(&model.Category{})
+	//回收站
+	}else {
+		curDB =  model.DeleteDB(&model.Category{})
 	}
+	//检索名字
+	if name := c.DefaultQuery("name", ""); name != "" {
+		curDB = curDB.Where("name=?", name)
+	}
+	p := model.DefaultPage(c)
+	p.Find(&cs, curDB)
+	c.HTML(http.StatusOK, "admin/categoryManage", h(gin.H{
+		"data": cs,
+		"page": p,
+		"trash" : trash,
+	}, c))
+}
+
+/**
+添加分类页面
+ */
+func PageCategoryAdd(c *gin.Context) {
+	c.HTML(http.StatusOK, "admin/categoryAdd", h(gin.H{}, c))
+}
+
+/**
+更新分类页面
+ */
+func PageCategoryUpdate(c *gin.Context) {
+	id := c.Param("id")
+	ct := model.Category{}
+	if _, err := model.FindById(&ct, tool.GetInt(id)); err != nil {
+		redirectError(c, "/404", err.Error())
+		return
+	}
+	c.HTML(http.StatusOK, "admin/categoryUpdate", h(gin.H{
+		"category": ct,
+	}, c))
+}
+
+/**
+分类创建控制器
 */
 func CategoryCreate(c *gin.Context) {
-	var cgDto struct {
-		Name string `json:"name"`
+	name := c.PostForm("name")
+	if strings.TrimSpace(name) == "" {
+		redirectError(c, "/admin/new_category", "标签名不能为空")
+		return
 	}
-	if err := c.ShouldBindJSON(&cgDto); err != nil {
-		c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-	} else {
-		cg := &model.Category{
-			Name: cgDto.Name,
-		}
-		if cg2, err := service.CategoryCreate(cg); err != nil {
-			c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-		} else {
-			c.JSON(http.StatusOK, result(http.StatusOK, cg2, ""))
-		}
+	ct := &model.Category{Name: name}
+	if err := ct.Create(); err != nil {
+		redirectError(c, "/admin/new_category", err.Error())
+		return
 	}
+	redirectOK(c, "/admin/new_category", "创建标签成功")
 }
-
 /**
-更新标签控制器
-	参数
-	host/v1/category/:id
-	{
-		"name" : ?
-	}
+分类更新控制器
 */
-func CategoryBaseUpdate(c *gin.Context) {
-	var cgDto struct {
-		Name string `json:"name"`
+func CategoryUpdate(c *gin.Context) {
+	id := c.Param("id")
+	name := c.PostForm("name")
+	ct := &model.Category{}
+	ct.ID = tool.GetInt(id)
+	ct.Name = name
+	if err := ct.Update(); err != nil {
+		redirectError(c, "/admin/category/update/"+id, err.Error())
+		return
 	}
-	if err := c.ShouldBindJSON(&cgDto); err != nil {
-		c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-	} else {
-		id := getInt(c.Query("id"))
-		cg := &model.Category{
-			Name: cgDto.Name,
-		}
-		if cg2, err := service.CategoryBaseUpdate(id, cg); err != nil {
-			c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-		} else {
-			c.JSON(http.StatusOK, result(http.StatusOK, cg2, ""))
-		}
-
-	}
+	redirect(c, "/admin/category/update/"+id, nil)
 }
 
 /**
-软删除标签控制器
-参数
-host/v1/category?id=x&id=x&id=x
-
+分类删除控制器
 */
 func CategoryDelete(c *gin.Context) {
-	var cgDto struct {
-		Ids []int `form:"id" json:"id"`
+	ctStrings := c.PostFormArray("ct_ids")
+	ctIds := tool.GetInts(ctStrings)
+	if err := model.Delete(&model.Category{}, ctIds...); err != nil {
+		redirectError(c, "/admin/manage_category", err.Error())
+		return
 	}
-	if err := c.Bind(&cgDto); err != nil {
-		c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-	} else {
-		if err := service.CategoryDelete(cgDto.Ids...); err != nil {
-			c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-		} else {
-			c.JSON(http.StatusOK, result(http.StatusOK, nil, ""))
-		}
-	}
+	redirectOK(c, "/admin/manage_category", "删除成功")
 }
 
 /**
-恢复删除标签控制器
-参数
-host/v1/category?id=x&id=x&id=x
+分类恢复控制器
 */
 func CategoryRecover(c *gin.Context) {
-	var cgDto struct {
-		Ids []int `form:"id" json:"id"`
+	ctStrings := c.PostFormArray("ct_ids")
+	ctIds := tool.GetInts(ctStrings)
+	if err := model.Recover(&model.Category{}, ctIds...); err != nil {
+		redirectError(c, "/admin/manage_category", err.Error())
+		return
 	}
-	if err := c.Bind(&cgDto); err != nil {
-		c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-	} else {
-		if err := service.CategoryRecover(cgDto.Ids...); err != nil {
-			c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-		} else {
-			c.JSON(http.StatusOK, result(http.StatusOK, nil, ""))
-		}
-	}
-}
-
-/**
-获取所有分类
-*/
-func CategoryGet(c *gin.Context) {
-	if cs, err := service.CategoryGet(); err != nil {
-		c.JSON(http.StatusBadRequest, result(http.StatusBadRequest, nil, err.Error()))
-	} else {
-		c.JSON(http.StatusOK, result(http.StatusOK, cs, ""))
-	}
+	redirectOK(c, "/admin/manage_category", "恢复成功")
 }

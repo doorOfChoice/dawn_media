@@ -24,7 +24,7 @@ func TestController(t *testing.T) {
 	router.DELETE("/v1/category", controller.CategoryDelete)
 	router.DELETE("/v1/trash/category", controller.CategoryRecover)
 
-	router.POST("/v1/media", controller.MediaCreate)
+	//router.POST("/v1/media", controller.MediaCreate)
 	router.Run(":8080")
 
 }

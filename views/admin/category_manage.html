@@ -1,0 +1,217 @@
+{{define "admin/categoryManage"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gentelella Alela! | </title>
+
+    <!-- Bootstrap -->
+    <link href="/static/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/static/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="/static/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="/static/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link href="/static/build/css/custom.min.css" rel="stylesheet">
+
+</head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+    {{template "admintpl/navigator" .}}
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <div class="page-title">
+                    <div class="title_left">
+                        <h3>分类
+                            <small>为梦想而生</small>
+                        </h3>
+                    </div>
+
+                    <div class="title_right">
+                        <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                            <form action="/admin/manage_category" method="GET">
+                                <div class="input-group">
+                                    <input type="text" name="name" class="form-control" placeholder="Search for...">
+                                    <span class="input-group-btn">
+                                    <input type="submit" class="btn btn-default" value="GO!"/>
+                                </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h2>分类管理</h2>
+                                <ul class="nav navbar-right panel_toolbox">
+                                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                           aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="/admin/manage_category?trash=1">回收站</a>
+                                            </li>
+                                            <li><a href="/admin/manage_category?trash=0">未回收</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                    </li>
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+
+                        {{/*单个删除表单*/}}
+                            <form hidden id="single-delete-form" action="/admin/category/delete" method="POST"
+                                  enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="ct_ids" value="{{.ID}}"/>
+                            </form>
+                        {{/*单个恢复表单*/}}
+                            <form hidden id="single-recover-form" action="/admin/category/recover" method="POST"
+                                  enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="ct_ids" value="{{.ID}}"/>
+                            </form>
+                        {{template "admintpl/alert" .}}
+                        {{/*批量删除*/}}
+                        {{if eq .trash "0"}}
+                        <form action="/admin/category/delete" method="POST"
+                              enctype="application/x-www-form-urlencoded">
+                        {{else}}
+                        <form action="/admin/category/recover" method="POST"
+                              enctype="application/x-www-form-urlencoded">
+                        {{end}}
+                            <div class="x_content">
+
+                                <div class="table-responsive">
+                                    <table class="table table-striped jambo_table bulk_action">
+                                        <thead>
+                                        <tr class="headings">
+                                            <th>
+                                                <input type="checkbox" id="check-all" class="flat">
+                                            </th>
+                                            <th class="column-title">ID</th>
+                                            <th class="column-title">创建日期</th>
+                                            <th class="column-title">修改日期</th>
+                                            <th class="column-title">名称</th>
+                                            <th class="column-title no-link last"><span class="nobr">Action</span>
+                                            </th>
+                                            <th class="bulk-actions" colspan="7">
+                                                <a class="antoo" style="color:#fff; font-weight:500;">Bulk Actions (
+                                                    <span class="action-cnt"> </span> ) <i
+                                                            class="fa fa-chevron-down"></i></a>
+                                            </th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        {{range .data}}
+                                        <tr class="even pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="ct_ids" value="{{.ID}}">
+                                            </td>
+                                            <td class=" ">{{.ID}}</td>
+                                            <td class=" ">{{.CreatedAt | formatDate}} </td>
+                                            <td class=" ">{{.UpdatedAt | formatDate}}</td>
+                                            <td class=" ">{{.Name}}</td>
+                                            <td class=" last">
+                                                <button class="btn btn-success single-update" style="float:left"
+                                                        data-id="{{.ID}}">修改
+                                                </button>
+                                            {{if eq $.trash "0"}}
+                                                <button class="btn btn-danger single-delete"
+                                                        data-id="{{.ID}}" style="float:left">删除
+                                                </button>
+                                            {{else}}
+                                                <button class="btn btn-primary single-recover"
+                                                        data-id="{{.ID}}" style="float:left">恢复
+                                                </button>
+                                            {{end}}
+                                            </td>
+                                        </tr>
+                                        {{end}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {{if eq .trash "0"}}
+                            <input type="submit" class="btn btn-danger" value="批量删除">
+                            {{else}}
+                             <input type="submit" class="btn btn-primary" value="批量恢复" >
+                             {{end}}
+                        </form>
+                            <div style="display: inline-block;">
+                                <nav aria-label="...">
+                                    <ul class="pager">
+                                        <li><a href="{{.page.PrevLink}}">Previous</a></li>
+                                        <li><a href="{{.page.NextLink}}">Next</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /page content -->
+
+    <!-- footer content -->
+{{template  "admintpl/footer" .}}
+    <!-- /footer content -->
+</div>
+</div>
+
+<!-- jQuery -->
+<script src="/static/vendors/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="/static/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- FastClick -->
+<script src="/static/vendors/fastclick/lib/fastclick.js"></script>
+<!-- NProgress -->
+<script src="/static/vendors/nprogress/nprogress.js"></script>
+<!-- iCheck -->
+<script src="/static/vendors/iCheck/icheck.min.js"></script>
+
+<!-- Custom Theme Scripts -->
+<script src="/static/build/js/custom.min.js"></script>
+
+<script type="text/javascript">
+    var singleDeleteForm = $("#single-delete-form");
+    var singleRecoverForm = $("#single-recover-form");
+    $(".single-update").click(function (e) {
+        e.preventDefault();
+        window.location.href = "/admin/category/update/" + $(this).attr("data-id");
+    });
+    $(".single-delete").click(function (e) {
+        var id = $(this).attr("data-id");
+        singleDeleteForm.find('input[name="ct_ids"]').val(id);
+        singleDeleteForm.submit();
+        return false;
+    });
+    $(".single-recover").click(function (e) {
+        var id = $(this).attr("data-id");
+        singleRecoverForm.find('input[name="ct_ids"]').val(id);
+        singleRecoverForm.submit();
+        return false;
+    });
+</script>
+</body>
+</html>
+{{end}}
