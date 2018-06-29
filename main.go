@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
+	"media_framwork/conf"
 	"media_framwork/controller"
 	"media_framwork/model"
 	"net/http"
@@ -17,7 +18,7 @@ func format(t time.Time) string {
 
 func main() {
 	model.Init()
-
+	conf.Init()
 	r := gin.Default()
 	//先设置函数，因为解析模板的时候回解析函数
 	r.SetFuncMap(template.FuncMap{
@@ -29,9 +30,7 @@ func main() {
 	r.GET("/admin", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "admin/index", nil)
 	})
-	r.GET("/404", func(c *gin.Context) {
-		c.HTML(http.StatusNotFound, "common/404", nil)
-	})
+	r.GET("/404", controller.Page404)
 	r.GET("/admin/new_category", controller.PageCategoryAdd)
 	r.GET("/admin/manage_category", controller.PageCategoryManage)
 	r.GET("/admin/category/update/:id", controller.PageCategoryUpdate)
@@ -39,5 +38,11 @@ func main() {
 	r.POST("/admin/category/update/:id", controller.CategoryUpdate)
 	r.POST("/admin/category/delete", controller.CategoryDelete)
 	r.POST("/admin/category/recover", controller.CategoryRecover)
-	r.Run(":8080")
+
+	r.GET("/admin/new_media", controller.PageMediaAdd)
+	r.GET("/admin/media/update/:id", controller.PageMediaUpdate)
+	r.POST("/admin/media/update/:id", controller.MediaUpdate)
+	r.POST("/admin/new_media", controller.MediaAdd)
+
+	r.Run(conf.C().Address)
 }

@@ -18,9 +18,7 @@ func TestController(t *testing.T) {
 	router.POST("/v1/user", controller.UserCreate)
 	router.POST("/v1/user/session", controller.UserLogin)
 
-	router.GET("/v1/category", controller.CategoryGet)
 	router.POST("/v1/category", controller.CategoryCreate)
-	router.PUT("/v1/category/:id", controller.CategoryBaseUpdate)
 	router.DELETE("/v1/category", controller.CategoryDelete)
 	router.DELETE("/v1/trash/category", controller.CategoryRecover)
 

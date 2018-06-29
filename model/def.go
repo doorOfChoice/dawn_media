@@ -7,10 +7,10 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"log"
 	"media_framwork/tool"
 	"strconv"
 	"time"
-	"log"
 )
 
 type Model struct {
@@ -39,6 +39,15 @@ type Media struct {
 	S1080         string
 	DownloadState int8        `gorm:"type:tinyint;default 0" json:"downloadState"`
 	Categories    []*Category `gorm:"many2many:media_categories" json:"categories"`
+}
+
+type MediaAttribute struct {
+	ID             int `gorm:"primary_key" json:"id"`
+	Media          *Media
+	MediaID        int
+	Uri            string
+	Description    string
+	DownloadStatus int `gorm:"type:tinyint;default 0" json:"downloadState"`
 }
 
 type Category struct {
@@ -128,19 +137,20 @@ func (p *Page) Find(i interface{}, db *gorm.DB) {
 
 	if p.CurPage+1 <= p.MaxPage {
 		p.NextPage = p.CurPage + 1
-	}else {
+	} else {
 		p.NextPage = p.CurPage
 	}
 	if p.CurPage-1 >= 1 {
 		p.PrevPage = p.CurPage - 1
-	}else {
+	} else {
 		p.PrevPage = p.CurPage
 	}
 	p.generateLink()
 }
+
 /**
 生成分页链接
- */
+*/
 func (p *Page) generateLink() {
 	uri := p.c.Request.URL
 	path := uri.Path
@@ -187,6 +197,15 @@ func Recover(i interface{}, ids ...int) error {
 }
 
 /**
+获取对象数量
+*/
+func Count(i interface{}) int {
+	count := 0
+	db.Model(i).Count(&count)
+	return count
+}
+
+/**
 通过ID找对象
 */
 func FindById(i interface{}, id int) (interface{}, error) {
@@ -197,9 +216,10 @@ func FindById(i interface{}, id int) (interface{}, error) {
 	}
 	return i, nil
 }
+
 /**
 创建分类
- */
+*/
 func (c *Category) Create() error {
 	count := 0
 	db.Model(Category{}).Where("name=?", c.Name).Count(&count)
@@ -209,9 +229,10 @@ func (c *Category) Create() error {
 	db.Save(c)
 	return db.Error
 }
+
 /**
 更新分类
- */
+*/
 func (c *Category) Update() error {
 	if u, err := FindById(&Category{}, c.ID); err != nil {
 		return err
@@ -226,4 +247,58 @@ func (c *Category) Update() error {
 		db.Save(ct)
 		return db.Error
 	}
+}
+
+func (m *Media) Create() error {
+	tx := db.Begin()
+	tx.Save(m)
+	if err := tx.Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Model(m).Association("Categories").Append(m.Categories)
+	if err := tx.Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit().Error
+}
+
+func (m *Media) Update() error {
+	var media *Media
+	if t, err := FindById(&Media{}, m.ID); err != nil {
+		return err
+	} else {
+		media = t.(*Media)
+	}
+	media.Title = m.Title
+	media.Introduction = m.Introduction
+	media.S360 = m.S360
+	media.S480 = m.S480
+	media.S720 = m.S720
+	media.S1080 = m.S1080
+	tx := db.Begin()
+	if err := tx.Save(media).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Model(media).Association("Categories").Clear().Append(m.Categories)
+	if err := tx.Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit().Error
+}
+
+func (m *Media) Get() error {
+	m.Categories = make([]*Category, 0)
+	count := 0
+	db.Find(m).Count(&count)
+	if count == 0 {
+		return errors.New("没有找到媒体文件")
+	}
+	db.
+		Joins(`JOIN media_categories as mc ON mc.category_id=id JOIN media ON mc.media_id=media.id`).
+		Find(&m.Categories)
+	return db.Error
 }

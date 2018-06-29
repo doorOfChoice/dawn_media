@@ -7,7 +7,10 @@ import (
 	"strconv"
 	"testing"
 	"time"
+	"github.com/google/uuid"
 	"log"
+	"media_framwork/conf"
+	"path/filepath"
 )
 
 //func TestModel(t *testing.T) {
@@ -87,10 +90,18 @@ func TestMUserLogin(t *testing.T) {
 }
 
 func TestMSee(t *testing.T) {
-	model.Init()
-	p := model.NewPage(1, 15)
-	cs := make([]*model.Category, 0)
-	p.Find(&cs, model.DB())
-	log.Println(cs)
-	log.Println(p)
+	c := "a.txt"
+	log.Println(filepath.Ext(c))
+}
+
+func TestUUID(t *testing.T) {
+	for i := 0; i < 20; i++ {
+		u := uuid.New()
+		log.Println(u.String())
+	}
+}
+
+func TestTOML(t *testing.T) {
+	conf.Init()
+	log.Println(conf.C())
 }

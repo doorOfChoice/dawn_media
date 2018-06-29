@@ -21,3 +21,4 @@ func GetInts(vs []string) []int {
 func GetInt64(v string) int64 {
 	return int64(GetInt(v))
 }
+
