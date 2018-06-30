@@ -1,0 +1,194 @@
+{{define "admin/userManage"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gentelella Alela! | </title>
+
+    <!-- Bootstrap -->
+    <link href="/static/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/static/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="/static/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="/static/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link href="/static/build/css/custom.min.css" rel="stylesheet">
+
+      <style>
+          img.avatar {
+              width: 48px;
+              height: 48px;
+          }
+      </style>
+  </head>
+
+  <body class="nav-md">
+    <div class="container body">
+      <div class="main_container">
+        {{template "admintpl/navigator" .}}
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>用户 <small>冻结你的梦想</small></h3>
+              </div>
+
+              <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search for...">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button">Go!</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>用户管理</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="/admin/manage_user?trash=1">已冻结用户</a>
+                          </li>
+                          <li><a href="/admin/manage_user?trash=0">活跃的用户</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                    {{template "admintpl/alert" .}}
+                    <!-- 不要放在表格里面，刚刚找不到 -->
+                    <form hidden action="/admin/user/delete" method="POST" id="single-delete-form">
+                        <input type="hidden" name="user_ids" value="" id="x">
+                    </form>
+                    <form hidden action="/admin/user/recover" method="POST" id="single-recover-form">
+                        <input type="hidden" name="user_ids" value="">
+                    </form>
+                  <div class="x_content">
+                    <!-- start project list -->
+                    <table class="table table-striped projects">
+                      <thead>
+                        <tr>
+                          <th style="width: 1%">#</th>
+                          <th style="width: 20%">ID</th>
+                          <th>头像</th>
+                          <th>用户名</th>
+                          <th>昵称</th>
+                          <th>身份</th>
+                          <th style="width: 20%">行为</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <!-- 用户TR -->
+                        {{range .users}}
+                        <tr>
+                            <td><input type="checkbox" value="{{.ID}}"/></td>
+                            <td>{{.ID}}</td>
+                            <td>
+                                <ul class="list-inline">
+                                    <li>
+                                        <img src="{{.Avatar}}" class="avatar" alt="Avatar">
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="project_progress">{{.Username}}</td>
+                            <td class="project_progress">{{.Nickname}}</td>
+                            <td>
+                                <span class="btn btn-success btn-xs">
+                                    {{if eq .Authority 1}}
+                                     普通用户
+                                    {{else if eq .Authority 2}}
+                                    管理员
+                                    {{end}}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/admin/user/update/{{.ID}}" class="btn btn-info btn-xs"><i class="fa fa-pencil"></i> 编辑 </a>
+                                {{if eq $.trash "0"}}
+                                <a href="javascript:void(0)" class="btn btn-danger btn-xs single-delete"  data-id="{{.ID}}"><i class="fa fa-trash-o"></i> 冻结 </a>
+                                {{else }}
+                                <a href="javascript:void(0)" class="btn btn-primary btn-xs single-recover"  data-id="{{.ID}}"><i class="fa fa-trash-o"></i> 恢复 </a>
+                                {{end}}
+                            </td>
+                        </tr>
+                        {{end}}
+                      </tbody>
+                    </table>
+                    <!-- end project list -->
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+
+        {{template "admintpl/footer" .}}
+      </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="/static/vendors/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="/static/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- FastClick -->
+    <script src="/static/vendors/fastclick/lib/fastclick.js"></script>
+    <!-- NProgress -->
+    <script src="/static/vendors/nprogress/nprogress.js"></script>
+    <!-- bootstrap-progressbar -->
+    <script src="/static/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+    
+    <!-- Custom Theme Scripts -->
+    <script src="/static/build/js/custom.min.js"></script>
+
+  <script type="text/javascript">
+      var singleDeleteForm = $("#single-delete-form");
+      var singleRecoverForm = $("#single-recover-form");
+      $(".single-update").click(function (e) {
+          e.preventDefault();
+          window.location.href = "/admin/category/update/" + $(this).attr("data-id");
+      });
+      $("#submit-btn").click(function (e) {
+          $("#submit-form").submit();
+          $(this).attr("disabled", true);
+      });
+      $(".single-delete").click(function (e) {
+          var id = $(this).attr("data-id");
+          singleDeleteForm.find('input[name="user_ids"]').val(id);
+          singleDeleteForm.submit();
+          return false;
+      });
+      $(".single-recover").click(function (e) {
+          var id = $(this).attr("data-id");
+          singleRecoverForm.find('input[name="user_ids"]').val(id);
+          singleRecoverForm.submit();
+          return false;
+      });
+  </script>
+  </body>
+</html>
+{{end}}

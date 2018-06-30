@@ -71,7 +71,7 @@
                   </div>
                   <div class="x_content">
 
-                    <form class="form-horizontal form-label-left" novalidate  method="post" enctype="application/x-www-form-urlencoded">
+                    <form class="form-horizontal form-label-left" id="submit-form" novalidate  method="post" enctype="application/x-www-form-urlencoded">
                     {{template "admintpl/alert" .}}
                       <p>在这里添加你想要的分类标签</a>
                       </p>
@@ -88,7 +88,7 @@
                       <div class="ln_solid"></div>
                       <div class="form-group">
                         <div class="col-md-6 col-md-offset-3">
-                          <button id="send" type="submit" class="btn btn-success">提交</button>
+                          <button type="submit" class="btn btn-success" id="submit-btn">提交</button>
                         </div>
                       </div>
                     </form>
@@ -100,14 +100,9 @@
         </div>
         <!-- /page content -->
 
-        <!-- footer content -->
-        <footer>
-          <div class="pull-right">
-            Gentelella - Bootstrap Admin Template by Colorlib. More Templates <a href="http://www.cssmoban.com/" target="_blank" title="模板之家">模板之家</a> - Collect from <a href="http://www.cssmoban.com/" title="网页模板" target="_blank">网页模板</a>
-          </div>
-          <div class="clearfix"></div>
-        </footer>
+
         <!-- /footer content -->
+        {{template "admintpl/footer" .}}
       </div>
     </div>
 
@@ -124,7 +119,13 @@
 
     <!-- Custom Theme Scripts -->
     <script src="/static/build/js/custom.min.js"></script>
-	
+
+    <script type="text/javascript">
+        $("#submit-btn").click(function (e) {
+            $("#submit-form").submit();
+            $(this).attr("disabled", true);
+        });
+    </script>
   </body>
 </html>
 {{end}}

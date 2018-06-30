@@ -8,9 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"log"
+	"media_framwork/conf"
 	"media_framwork/tool"
 	"strconv"
 	"time"
+)
+
+const (
+	COMMONUSER = 1
+	ADMIN      = 2
 )
 
 type Model struct {
@@ -23,22 +29,22 @@ type Model struct {
 
 type User struct {
 	Model
-	Username    string        `gorm:"type:char(64);not null" json:"username"`
-	Password    string        `gorm:"type:char(64);not null" json:"password"`
-	Sex         int           `gorm:"type:tinyint;default 0" json:"sex"`
+	Username string `gorm:"type:char(64);not null" json:"username"`
+	Password string `gorm:"type:char(64);not null" json:"password"`
+	Nickname string `gorm:"type:char(64);not null" json:"nickname"`
+	Avatar   string
+	//1 COMMON 2 ADMIN
+	Authority   int           `gorm:"default:1"`
 	UserRecords []*UserRecord `json:"userRecords"`
 }
 
 type Media struct {
 	Model
-	Title         string `gorm:"type:varchar(255);not null;index" json:"title"`
-	Introduction  string `gorm:"type:varchar(1000);not null" json:"introduction"`
-	S360          string
-	S480          string
-	S720          string
-	S1080         string
-	DownloadState int8        `gorm:"type:tinyint;default 0" json:"downloadState"`
-	Categories    []*Category `gorm:"many2many:media_categories" json:"categories"`
+	Title           string `gorm:"type:varchar(255);not null;index" json:"title"`
+	Introduction    string `gorm:"type:varchar(1000);not null" json:"introduction"`
+	Cover           string
+	Categories      []*Category `gorm:"many2many:media_categories" json:"categories"`
+	MediaAttributes []*MediaAttribute
 }
 
 type MediaAttribute struct {
@@ -46,6 +52,7 @@ type MediaAttribute struct {
 	Media          *Media
 	MediaID        int
 	Uri            string
+	Filename       string
 	Description    string
 	DownloadStatus int `gorm:"type:tinyint;default 0" json:"downloadState"`
 }
@@ -90,6 +97,7 @@ type Page struct {
 	PrevPage int
 	NextPage int
 	Count    int
+	CurCount int
 	PrevLink string
 	NextLink string
 	c        *gin.Context
@@ -120,13 +128,22 @@ func DefaultPage(c *gin.Context) *Page {
 /**
 查找数据并且生成分页信息
 */
-func (p *Page) Find(i interface{}, db *gorm.DB) {
+func (p *Page) Find(i interface{}, db *gorm.DB, delete ...bool) {
 	count := 0
-	db.Model(i).
+	curDB := db.Model(i)
+	if len(delete) == 1 {
+		if delete[0] {
+			curDB = curDB.Where("soft_delete=2")
+		} else {
+			curDB = curDB.Where("soft_delete=1")
+		}
+	}
+	curDB.
 		Count(&count).
 		Offset((p.CurPage - 1) * p.Limit).
 		Limit(p.Limit).
-		Find(i)
+		Find(i).
+		Count(&p.CurCount)
 	p.Count = count
 	mod := p.Count % p.Limit
 	if mod == 0 {
@@ -261,6 +278,12 @@ func (m *Media) Create() error {
 		tx.Rollback()
 		return err
 	}
+	for _, ma := range m.MediaAttributes {
+		if err := ma.Create(tx); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
 	return tx.Commit().Error
 }
 
@@ -273,10 +296,7 @@ func (m *Media) Update() error {
 	}
 	media.Title = m.Title
 	media.Introduction = m.Introduction
-	media.S360 = m.S360
-	media.S480 = m.S480
-	media.S720 = m.S720
-	media.S1080 = m.S1080
+	media.Cover = m.Cover
 	tx := db.Begin()
 	if err := tx.Save(media).Error; err != nil {
 		tx.Rollback()
@@ -287,18 +307,107 @@ func (m *Media) Update() error {
 		tx.Rollback()
 		return err
 	}
+
+	for _, ma := range m.MediaAttributes {
+		if err := ma.Update(tx); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
 	return tx.Commit().Error
 }
 
 func (m *Media) Get() error {
 	m.Categories = make([]*Category, 0)
+	m.MediaAttributes = make([]*MediaAttribute, 0)
 	count := 0
 	db.Find(m).Count(&count)
 	if count == 0 {
 		return errors.New("没有找到媒体文件")
 	}
 	db.
-		Joins(`JOIN media_categories as mc ON mc.category_id=id JOIN media ON mc.media_id=media.id`).
+		Joins(`JOIN media_categories as mc ON mc.category_id=id JOIN media ON mc.media_id=media.id and media.id=?`, m.ID).
 		Find(&m.Categories)
+	db.Model(m).
+		Association("MediaAttributes").
+		Find(&m.MediaAttributes)
+	m.Cover = conf.C().CoverMap + m.Cover
+	for _, ma := range m.MediaAttributes {
+		ma.Uri = conf.C().MediaMap + ma.Uri
+	}
 	return db.Error
+}
+
+func (ma *MediaAttribute) Update(i ...interface{}) error {
+	var tx *gorm.DB
+	if len(i) != 0 {
+		tx = i[0].(*gorm.DB)
+	}
+	count := 0
+	tx.Model(ma).Count(&count)
+	if count == 0 {
+		return errors.New("属性" + strconv.Itoa(ma.ID) + "不存在")
+	}
+	return tx.Model(ma).Update(ma).Error
+}
+
+func (ma *MediaAttribute) Create(i ...interface{}) error {
+	var tx *gorm.DB
+	if len(i) != 0 {
+		tx = i[0].(*gorm.DB)
+	}
+	return tx.Save(ma).Error
+}
+
+func (u *User) Create() error {
+	count := 0
+	db.
+		Model(u).
+		Where("username=?", u.Username).
+		Count(&count)
+	if count > 0 {
+		return errors.New("用户已经被注册")
+	}
+	u.Password = tool.Md5EncodeWithSalt(u.Password, conf.C().PassSalt)
+	return db.Save(u).Error
+}
+
+func (u *User) Update() error {
+	user := &User{}
+	user.ID = u.ID
+
+	if err := user.Get(); err != nil {
+		return errors.New("用户不存在")
+	}
+	if u.Password != "" {
+		user.Password = tool.Md5EncodeWithSalt(u.Password, conf.C().PassSalt)
+	}
+	user.Nickname = u.Nickname
+	user.Authority = u.Authority
+	user.Avatar = u.Avatar
+	return db.Model(user).Update(user).Error
+}
+
+func (u *User) Get() error {
+	count := 0
+	db.Find(u).Count(&count)
+	if count == 0 {
+		return errors.New("用户不存在")
+	}
+	u.Avatar = conf.C().AvatarMap + u.Avatar
+	return nil
+}
+
+func FindUserByLogin(username, password string) (*User, error) {
+	count := 0
+	user := &User{}
+	password = tool.Md5EncodeWithSalt(password, conf.C().PassSalt)
+	db.
+		Where("username=? and password=?", username, password).
+		Find(user).
+		Count(&count)
+	if count == 0 {
+		return nil, errors.New("用户名或者密码错误")
+	}
+	return user, nil
 }

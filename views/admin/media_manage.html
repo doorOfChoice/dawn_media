@@ -1,4 +1,4 @@
-{{define "admin/categoryManage"}}
+{{define "admin/mediaManage"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,21 +33,25 @@
             <div class="">
                 <div class="page-title">
                     <div class="title_left">
-                        <h3>分类
+                        <h3>媒体
                             <small>为梦想而生</small>
                         </h3>
                     </div>
 
                     <div class="title_right">
                         <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-                            <form action="/admin/manage_category" method="GET">
+                            <form action="/admin/manage_media" method="GET">
                                 <div class="input-group">
-                                    <input type="text" name="name" class="form-control" placeholder="Search for...">
+                                    <input type="hidden" name="trash" value="{{.trash}}">
+                                    <input type="hidden" name="id" value="">
+                                    <input type="text" name="title" class="form-control" placeholder="Search for...">
                                     <span class="input-group-btn">
                                     <input type="submit" class="btn btn-default" value="GO!"/>
                                 </span>
                                 </div>
                             </form>
+                        </div>
+                        <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
                         </div>
                     </div>
                 </div>
@@ -66,9 +70,9 @@
                                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                            aria-expanded="false"><i class="fa fa-wrench"></i></a>
                                         <ul class="dropdown-menu" role="menu">
-                                            <li><a href="/admin/manage_category?trash=1">回收站</a>
+                                            <li><a href="/admin/manage_media?trash=1">回收站</a>
                                             </li>
-                                            <li><a href="/admin/manage_category?trash=0">未回收</a>
+                                            <li><a href="/admin/manage_media?trash=0">未回收</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -77,22 +81,22 @@
                             </div>
 
                         {{/*单个删除表单*/}}
-                            <form hidden id="single-delete-form" action="/admin/category/delete" method="POST"
+                            <form hidden id="single-delete-form" action="/admin/media/delete" method="POST"
                                   enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="ct_ids" value="{{.ID}}"/>
+                                <input type="hidden" name="media_ids" value="{{.ID}}"/>
                             </form>
                         {{/*单个恢复表单*/}}
-                            <form hidden id="single-recover-form" action="/admin/category/recover" method="POST"
+                            <form hidden id="single-recover-form" action="/admin/media/recover" method="POST"
                                   enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="ct_ids" value="{{.ID}}"/>
+                                <input type="hidden" name="media_ids" value="{{.ID}}"/>
                             </form>
                         {{template "admintpl/alert" .}}
                         {{/*批量删除*/}}
                         {{if eq .trash "0"}}
-                        <form action="/admin/category/delete" method="POST" id="submit-from"
+                        <form action="/admin/media/delete" method="POST" id="submit-form"
                               enctype="application/x-www-form-urlencoded">
                         {{else}}
-                        <form action="/admin/category/recover" method="POST" id="submit-from"
+                        <form action="/admin/media/recover" method="POST" id="submit-form"
                               enctype="application/x-www-form-urlencoded">
                         {{end}}
                             <div class="x_content">
@@ -106,7 +110,7 @@
                                             <th class="column-title">ID</th>
                                             <th class="column-title">创建日期</th>
                                             <th class="column-title">修改日期</th>
-                                            <th class="column-title">名称</th>
+                                            <th class="column-title">片名</th>
                                             <th class="column-title no-link last"><span class="nobr">Action</span>
                                             </th>
                                             <th class="bulk-actions" colspan="7">
@@ -121,12 +125,12 @@
                                         {{range .data}}
                                         <tr class="even pointer">
                                             <td class="a-center ">
-                                                <input type="checkbox" class="flat" name="ct_ids" value="{{.ID}}">
+                                                <input type="checkbox" class="flat" name="media_ids" value="{{.ID}}">
                                             </td>
                                             <td class=" ">{{.ID}}</td>
                                             <td class=" ">{{.CreatedAt | formatDate}} </td>
                                             <td class=" ">{{.UpdatedAt | formatDate}}</td>
-                                            <td class=" ">{{.Name}}</td>
+                                            <td class=" ">{{.Title}}</td>
                                             <td class=" last">
                                                 {{/*<button class="btn btn-success single-update" style="float:left"*/}}
                                                         {{/*data-id="{{.ID}}">修改*/}}
@@ -151,11 +155,11 @@
                                         {{end}}
                                         </tbody>
                                     </table>
+                                {{if eq .page.CurCount 0}}
+                                    <center style="font-size: 1.5em;">空空如也🤣</center>
+                                {{end}}
                                 </div>
                             </div>
-                        {{if eq .page.CurCount 0}}
-                            <center style="font-size: 1.5em;">空空如也🤣</center>
-                        {{end}}
                             {{if eq .trash "0"}}
                             <input type="submit" class="btn btn-danger" value="批量删除" id="submit-btn">
                             {{else}}
@@ -203,21 +207,23 @@
     var singleRecoverForm = $("#single-recover-form");
     $(".single-update").click(function (e) {
         e.preventDefault();
-        window.location.href = "/admin/category/update/" + $(this).attr("data-id");
+        window.location.href = "/admin/media/update/" + $(this).attr("data-id");
     });
     $("#submit-btn").click(function (e) {
-        $("#submit-form").submit();
-        $(this).attr("disabled", true);
+       $(this).attr("disabled", true);
+       $("#submit-form").submit();
     });
     $(".single-delete").click(function (e) {
         var id = $(this).attr("data-id");
-        singleDeleteForm.find('input[name="ct_ids"]').val(id);
+        singleDeleteForm.find('input[name="media_ids"]').val(id);
+        $(this).attr("disabled", true);
         singleDeleteForm.submit();
         return false;
     });
     $(".single-recover").click(function (e) {
         var id = $(this).attr("data-id");
-        singleRecoverForm.find('input[name="ct_ids"]').val(id);
+        singleRecoverForm.find('input[name="media_ids"]').val(id);
+        $(this).attr("disabled", true);
         singleRecoverForm.submit();
         return false;
     });

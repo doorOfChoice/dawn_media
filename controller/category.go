@@ -3,49 +3,41 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"media_framwork/model"
+	"media_framwork/tool"
 	"net/http"
 	"strings"
-	"media_framwork/tool"
-	"github.com/jinzhu/gorm"
 )
 
 /**
 管理分类页面
- */
+*/
 func PageCategoryManage(c *gin.Context) {
 	var cs []model.Category
-	var curDB *gorm.DB
+	curDB := model.DB()
 	trash := c.DefaultQuery("trash", "0")
-	//非回收站
-	if trash == "0" {
-		curDB = model.UnDeleteDB(&model.Category{})
-	//回收站
-	}else {
-		curDB =  model.DeleteDB(&model.Category{})
-	}
 	//检索名字
 	if name := c.DefaultQuery("name", ""); name != "" {
 		curDB = curDB.Where("name=?", name)
 	}
 	p := model.DefaultPage(c)
-	p.Find(&cs, curDB)
+	p.Find(&cs, curDB, trash != "0")
 	c.HTML(http.StatusOK, "admin/categoryManage", h(gin.H{
-		"data": cs,
-		"page": p,
-		"trash" : trash,
+		"data":  cs,
+		"page":  p,
+		"trash": trash,
 	}, c))
 }
 
 /**
 添加分类页面
- */
+*/
 func PageCategoryAdd(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/categoryAdd", h(gin.H{}, c))
 }
 
 /**
 更新分类页面
- */
+*/
 func PageCategoryUpdate(c *gin.Context) {
 	id := c.Param("id")
 	ct := model.Category{}
@@ -74,6 +66,7 @@ func CategoryCreate(c *gin.Context) {
 	}
 	redirectOK(c, "/admin/new_category", "创建标签成功")
 }
+
 /**
 分类更新控制器
 */

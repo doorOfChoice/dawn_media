@@ -1,0 +1,73 @@
+{{define "common/register"}}
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Personal Login Form Responsive Widget Template :: 小贝壳网站模板</title>
+<!-- Meta tag Keywords -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="Personal Login Form Responsive Widget,Login form widgets, Sign up Web forms , Login signup Responsive web form,Flat Pricing table,Flat Drop downs,Registration Forms,News letter Forms,Elements" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
+function hideURLbar(){ window.scrollTo(0,1); } </script>
+<!-- Meta tag Keywords -->
+
+<!-- css files -->
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" media="all" /> <!-- Style-CSS -->
+<link rel="stylesheet" href="/static/css/font-awesome.css"> <!-- Font-Awesome-Icons-CSS -->
+<!-- //css files -->
+
+<!-- online-fonts -->
+<link href="http://fonts.googleapis.com/css?family=Josefin+Sans:100,100i,300,300i,400,400i,600,600i,700,700i&amp;subset=latin-ext" rel="stylesheet">
+<!-- //online-fonts -->
+</head>
+<body>
+<!--header-->
+	<div class="header-w3l">
+		<h1>Dawndevil Video House</h1>
+	</div>
+<!--//header-->
+
+<!--main-->
+<div class="main-content-agile">
+	<div class="sub-main-w3">	
+		<div class="wthree-pro">
+			<img src="/static/images/pro.jpg" alt="image">
+			<h2>开始注册吧</h2>
+		</div>
+		<form action="/register" method="POST">
+			<div>
+                <input placeholder="请输入用户名" name="username" class="user" type="text" required="">
+			</div>
+			<div>
+                <input  placeholder="密码" name="password" class="pass" type="password" required="">
+			</div>
+            <div>
+                <input  placeholder="重复密码" name="passwordAgain" class="pass" type="password" required="">
+            </div>
+            <div style="color: red">
+			{{if .error}}
+					{{.error}}
+				{{else}}
+					{{.success}}
+				{{end}}
+            </div>
+			<div class="sub-w3l">
+				<div class="right-w3l">
+					<input type="submit" value="注册">
+				</div>
+			</div>
+		</form>
+
+	</div>
+</div>
+<!--//main-->
+
+<!--footer-->
+<div class="footer">
+	<p> 頂級流媒體網站 <a href="http://www.smallseashell.com">.Dawndevil工作室.</a></p>
+</div>
+<!--//footer-->
+
+</body>
+</html>
+{{end}}

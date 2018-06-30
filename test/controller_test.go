@@ -15,8 +15,6 @@ func TestController(t *testing.T) {
 	router := gin.Default()
 	router.Use(sessions.Sessions("media_web", store))
 
-	router.POST("/v1/user", controller.UserCreate)
-	router.POST("/v1/user/session", controller.UserLogin)
 
 	router.POST("/v1/category", controller.CategoryCreate)
 	router.DELETE("/v1/category", controller.CategoryDelete)

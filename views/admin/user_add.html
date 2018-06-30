@@ -1,4 +1,4 @@
-{{define "admin/media_update"}}
+{{define "admin/user_add"}}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -53,16 +53,14 @@
           <div class="">
             <div class="page-title">
               <div class="title_left">
-                <h3>媒体</h3>
+                <h3>用户</h3>
               </div>
-
-
-
+            </div>
             <div class="row">
               <div class="col-md-12 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2>上传媒体 <small>仅限视频</small></h2>
+                    <h2> 修改用户信息</h2>
                     <ul class="nav navbar-right panel_toolbox">
                       <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
@@ -83,82 +81,42 @@
                   {{template "admintpl/alert" .}}
                   <div class="x_content">
                     <br />
-                    {{with .media}}
-                    <form class="form-horizontal form-label-left" id="submit-form" action="/admin/media/update/{{.ID}}" method="POST" enctype="multipart/form-data">
+                    <form class="form-horizontal form-label-left" id="submit-form" action="/admin/new_user" method="POST" enctype="multipart/form-data">
 
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12">媒体标题</label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                          <input type="text" class="form-control" name="title" placeholder="Default Input" value="{{.Title}}">
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12">介绍 <span class="required">*</span>
-                        </label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                          <textarea class="form-control" rows="6" placeholder='rows="3"' name="introduction" form="submit-form" >{{.Introduction}}</textarea>
-                        </div>
+                       <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">头像</label>
+                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                <center>
+                                    <img src="{{.Avatar}}" alt="" style="width: 128px; height:128px;border-radius: 50%;">
+                                    <input type="file"  name="avatar" placeholder="Default Input" >
+                                </center>
+                            </div>
                       </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">封面</label>
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">用户名</label>
                             <div class="col-md-9 col-sm-9 col-xs-12">
-                                <input name="cover" type="file">
-                                {{if ne .Cover ""}}
-                                <img src="{{.Cover}}" style="width:200px;margin:1em;" alt="No Cover">
-                                {{else}}
-                                <img src="/static/media/cover/notExist.jpg" style="width:200px;margin:1em;" alt="No Cover">
-                                {{end}}
+                                <input type="text" class="form-control" name="username" placeholder="用户名"  >
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">标清文件</label>
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">昵称</label>
                             <div class="col-md-9 col-sm-9 col-xs-12">
-                                <input type="hidden" name="file_s360_id" value="{{(index .MediaAttributes 0).ID}}">
-                              <input name="file_s360" type="file"  style="float:left">
-                              <span  style="float:left">文件名:{{(index .MediaAttributes 0).Filename}}</span>
+                                <input type="text" class="form-control" name="nickname" placeholder="昵称"  >
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">高清文件</label>
-                            <div class="col-md-9 col-sm-9 col-xs-12">
-                                <input type="hidden" name="file_s480_id" value="{{(index .MediaAttributes 1).ID}}">
-                                <input name="file_s480" type="file" style="float:left">
-                                <span style="float:left">文件名:{{(index .MediaAttributes 1).Filename}}</span>
-                            </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">密码</label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                          <input type="text" class="form-control" name="password" placeholder="不填写表示不修改" >
                         </div>
+                      </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">超清文件</label>
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">权限</label>
                             <div class="col-md-9 col-sm-9 col-xs-12">
-                                <input type="hidden" name="file_s720_id" value="{{(index .MediaAttributes 2).ID}}">
-                                <input name="file_s720" type="file" style="float:left">
-                                <span style="float:left">文件名:{{(index .MediaAttributes 2).Filename}}</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">蓝光文件</label>
-                            <div class="col-md-9 col-sm-9 col-xs-12">
-                                <input type="hidden" name="file_s1080_id" value="{{(index .MediaAttributes 3).ID}}">
-                                <input name="file_s1080"type="file" style="float:left">
-                                <span style="float:left">文件名:{{(index .MediaAttributes 3).Filename}}</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">可选分类</label>
-                            <div class="col-md-9 col-sm-9 col-xs-12">
-                                <select class="select2_group form-control" name="categories" id="categories">
-                                {{range $.categories}}
-                                    <option value="{{.ID}}">{{.Name}}</option>
-                                {{end}}
+                                <select name="authority" class="form-control" id="">
+                                    <option value="1" selected="selected">普通用户</option>
+                                    <option value="2" >管理员</option>
                                 </select>
-                            </div>
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">已选分类</label>
-                            <div class="col-md-9 col-sm-9 col-xs-12" id="category_choice">
-                              {{range .Categories}}
-                                <span class="label label-success category">
-                                    <input type="hidden" name="ct_ids" value="{{.ID}}">
-                                    <span>{{.Name}}</span>
-                                    <b>×</b></span>
-                              {{end}}
                             </div>
                         </div>
 
@@ -169,7 +127,7 @@
                         </div>
                       </div>
                     </form>
-                     {{end}}
+
                   </div>
                 </div>
               </div>

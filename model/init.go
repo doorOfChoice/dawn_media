@@ -23,6 +23,7 @@ func Init(params ...interface{}) {
 		&Category{},
 		&Star{},
 		&Comment{},
+		&MediaAttribute{},
 	)
 	t.Table("media_categories").AddForeignKey("category_id", "categories(id)", "CASCADE", "CASCADE")
 	t.Table("media_categories").AddForeignKey("media_id", "media(id)", "CASCADE", "CASCADE")
@@ -32,7 +33,7 @@ func Init(params ...interface{}) {
 	t.Table("stars").AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
 	t.Table("comments").AddForeignKey("media_id", "media(id)", "CASCADE", "CASCADE")
 	t.Table("comments").AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
-
+	t.Table("media_attributes").AddForeignKey("media_id", "media(id)", "CASCADE", "CASCADE")
 	db = t
 }
 

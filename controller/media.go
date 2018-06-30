@@ -7,10 +7,22 @@ import (
 	"media_framwork/conf"
 	"media_framwork/model"
 	"media_framwork/tool"
+	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
+type mediaAttributeDto struct {
+	id          int
+	file        *multipart.FileHeader
+	description string
+}
+
+/**
+添加媒体页面
+*/
 func PageMediaAdd(c *gin.Context) {
 	categories := make([]*model.Category, 0)
 	model.DB().Select("id,name").Find(&categories)
@@ -18,6 +30,10 @@ func PageMediaAdd(c *gin.Context) {
 		"categories": categories,
 	}, c))
 }
+
+/**
+更新媒体页面
+*/
 func PageMediaUpdate(c *gin.Context) {
 	id := tool.GetInt(c.Param("id"))
 	media := &model.Media{}
@@ -33,86 +49,171 @@ func PageMediaUpdate(c *gin.Context) {
 		"media":      media,
 	}, c))
 }
+
+/**
+更新媒体控制器
+*/
 func MediaUpdate(c *gin.Context) {
 	media := &model.Media{}
 	media.ID = tool.GetInt(c.Param("id"))
 	media.Title = c.PostForm("title")
 	media.Introduction = c.PostForm("introduction")
-	ctIds := tool.GetInts(c.PostFormArray("categories"))
+	ctIds := tool.GetInts(c.PostFormArray("ct_ids"))
 	for _, id := range ctIds {
 		ct := &model.Category{}
 		ct.ID = id
 		media.Categories = append(media.Categories, ct)
 	}
-	var s string
+
 	var err error
-	if s, err = dealMediaFile(c, "file_s360"); err == nil {
-		media.S360 = s
-		if s, err = dealMediaFile(c, "file_s480"); err == nil {
-			media.S480 = s
-			if s, err = dealMediaFile(c, "file_s720"); err == nil {
-				media.S720 = s
-				if s, err = dealMediaFile(c, "file_s1080"); err == nil {
-					media.S1080 = s
-					if err = media.Update(); err == nil {
-						redirectOK(c, "/admin/media/update/"+c.Param("id"), "更新媒体成功")
-						return
-					}
-				}
-			}
+	//跳转网址
+	uri := "/admin/media/update/" + c.Param("id")
+	if err = dealMediaFile(c, media, hookFile(c)); err == nil {
+		if err = media.Update(); err == nil {
+			redirectOK(c, uri, "更新成功")
+			return
 		}
 	}
-	redirectError(c, "/admin/update/media"+c.Param("id"), err.Error())
+	redirectError(c, uri, err.Error())
 }
+
+/**
+删除媒体控制器
+*/
+func MediaDelete(c *gin.Context) {
+	mediaIds := tool.GetInts(c.PostFormArray("media_ids"))
+	if err := model.Delete(&model.Media{}, mediaIds...); err != nil {
+		redirectError(c, "/admin/manage_media", err.Error())
+		return
+	}
+	redirectOK(c, "/admin/manage_media", "删除媒体成功")
+}
+
+/**
+恢复媒体控制器
+*/
+func MediaRecover(c *gin.Context) {
+	mediaIds := tool.GetInts(c.PostFormArray("media_ids"))
+	if err := model.Recover(&model.Media{}, mediaIds...); err != nil {
+		redirectError(c, "/admin/manage_media", err.Error())
+		return
+	}
+	redirectOK(c, "/admin/manage_media", "恢复媒体成功")
+}
+
+/**
+管理媒体控制器
+*/
+func PageMediaManage(c *gin.Context) {
+	medias := make([]*model.Media, 0)
+	p := model.DefaultPage(c)
+	curDB := model.DB()
+	trash := c.DefaultQuery("trash", "0")
+	if title := c.DefaultQuery("title", ""); title != "" {
+		curDB = curDB.Where("title=?", title)
+	}
+	if id := c.DefaultQuery("id", ""); id != "" {
+		curDB = curDB.Where("id=?", id)
+	}
+	p.Find(&medias, curDB, trash != "0")
+	c.HTML(http.StatusOK, "admin/mediaManage", h(gin.H{
+		"data":  medias,
+		"trash": trash,
+		"page":  p,
+	}, c))
+}
+
+/**
+添加媒体控制器
+*/
 func MediaAdd(c *gin.Context) {
 	media := &model.Media{}
 	media.Title = c.PostForm("title")
 	media.Introduction = c.PostForm("introduction")
-	ctIds := tool.GetInts(c.PostFormArray("categories"))
+	ctIds := tool.GetInts(c.PostFormArray("ct_ids"))
 	for _, id := range ctIds {
 		ct := &model.Category{}
 		ct.ID = id
 		media.Categories = append(media.Categories, ct)
 	}
-	var s string
+
 	var err error
-	if s, err = dealMediaFile(c, "file_s360"); err == nil {
-		media.S360 = s
-		if s, err = dealMediaFile(c, "file_s480"); err == nil {
-			media.S480 = s
-			if s, err = dealMediaFile(c, "file_s720"); err == nil {
-				media.S720 = s
-				if s, err = dealMediaFile(c, "file_s1080"); err == nil {
-					media.S1080 = s
-					if err = media.Create(); err == nil {
-						redirectOK(c, "/admin/new_media", "创建媒体成功")
-						return
-					}
-				}
-			}
+	if err = dealMediaFile(c, media, hookFile(c)); err == nil {
+		if err = media.Create(); err == nil {
+			redirectOK(c, "/admin/media/update/"+strconv.Itoa(media.ID), "创建媒体成功")
+			return
 		}
 	}
 	redirectError(c, "/admin/new_media", err.Error())
 }
 
-func dealMediaFile(c *gin.Context, formName string) (string, error) {
-	parent := conf.C().UploadDir
-	if info, err := c.FormFile(formName); err != nil {
-		return "", nil
-	} else {
-		if info.Size == 0 {
-			return "", nil
-		}
-		ext := filepath.Ext(info.Filename)
-		if ext != ".mp4" && ext != ".avi" && ext != ".ts" {
-			return "", errors.New("文件格式不支持")
-		}
-
-		filename := uuid.New().String() + ext
-		if err := c.SaveUploadedFile(info, parent+filename); err != nil {
-			return "", err
-		}
-		return filename, nil
+func hookFile(c *gin.Context) []mediaAttributeDto {
+	ms := make([]mediaAttributeDto, 4)
+	if u, err := c.FormFile("file_s360"); err == nil {
+		ms[0].description = "360P"
+		ms[0].file = u
+		ms[0].id = tool.GetInt(c.DefaultPostForm("file_s360_id", "0"))
+	}
+	if u, err := c.FormFile("file_s480"); err == nil {
+		ms[1].description = "480P"
+		ms[1].file = u
+		ms[1].id = tool.GetInt(c.DefaultPostForm("file_s480_id", "0"))
+	}
+	if u, err := c.FormFile("file_s720"); err == nil {
+		ms[2].description = "720P"
+		ms[2].file = u
+		ms[2].id = tool.GetInt(c.DefaultPostForm("file_s720_id", "0"))
+	}
+	if u, err := c.FormFile("file_s1080"); err == nil {
+		ms[3].description = "1080P"
+		ms[3].file = u
+		ms[3].id = tool.GetInt(c.DefaultPostForm("file_s1080_id", "0"))
 	}
 
+	return ms
+}
+
+/**
+处理媒体文件
+*/
+func dealMediaFile(c *gin.Context, m *model.Media, infos []mediaAttributeDto) error {
+	if cover, err := c.FormFile("cover"); err == nil && cover.Size != 0 {
+		filename := uuid.New().String() + filepath.Ext(cover.Filename)
+		if err := c.SaveUploadedFile(cover, conf.C().CoverDir+filename); err == nil {
+			m.Cover = filename
+		}
+	}
+	for _, info := range infos {
+		//后缀
+		ext := filepath.Ext(info.file.Filename)
+		//前缀
+		base := filepath.Base(info.file.Filename)
+		//TODO 验证视频格式
+		//单纯判断名字是否符合
+		if strings.TrimSpace(base) != "." &&
+			ext != ".mp4" &&
+			ext != ".avi" &&
+			ext != ".ts" {
+			return errors.New(info.description + "文件格式不支持")
+		}
+	}
+	for _, info := range infos {
+		ma := &model.MediaAttribute{Description: info.description}
+		m.MediaAttributes = append(m.MediaAttributes, ma)
+		base := filepath.Base(info.file.Filename)
+		if info.file == nil ||
+			info.file.Size == 0 ||
+			strings.TrimSpace(base) == "." {
+			continue
+		}
+		ext := filepath.Ext(info.file.Filename)
+		filename := uuid.New().String() + ext
+		if err := c.SaveUploadedFile(info.file, conf.C().MediaDir+filename); err != nil {
+			return err
+		}
+		ma.ID = info.id
+		ma.Filename = info.file.Filename
+		ma.Uri = filename
+	}
+	return nil
 }
