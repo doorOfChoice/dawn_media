@@ -59,6 +59,14 @@ func UserAdd(c *gin.Context) {
 	user.Nickname = c.PostForm("nickname")
 	user.Password = c.PostForm("password")
 	user.Authority = tool.GetInt(c.PostForm("authority"))
+
+	//验证用户用户名和密码的合法性
+	v := MyValidator{}
+	v.ValidateUser(user)
+	if redirectNotPass(c, "/admin/new_user", v) {
+		return
+	}
+
 	var err error
 	if err = dealAvatar(c, user); err == nil {
 		if err = user.Create(); err == nil {
@@ -70,13 +78,21 @@ func UserAdd(c *gin.Context) {
 }
 
 func UserUpdate(c *gin.Context) {
+	uri := "/admin/user/update/" + c.Param("id")
 	id := tool.GetInt(c.Param("id"))
 	user := &model.User{}
 	user.ID = id
 	user.Nickname = c.PostForm("nickname")
 	user.Password = c.PostForm("password")
 	user.Authority = tool.GetInt(c.PostForm("authority"))
-	uri := "/admin/user/update/" + c.Param("id")
+
+	//验证用户用户名和密码的合法性
+	v := MyValidator{}
+	v.ValidateUserUpdate(user)
+	if redirectNotPass(c, uri, v) {
+		return
+	}
+
 	var err error
 	if err = dealAvatar(c, user); err == nil {
 		if err = user.Update(); err == nil {
@@ -127,18 +143,28 @@ func UserRecover(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
+	uri := "/register"
 	user := &model.User{}
 	user.Username = c.PostForm("username")
 	user.Password = c.PostForm("password")
 	user.Nickname = user.Username
 	user.Avatar = "default.jpg"
 	passwordAgain := c.PostForm("passwordAgain")
+
+	//验证用户用户名和密码的合法性
+	v := MyValidator{}
+	v.Size(passwordAgain, 4, 20, "第二次输入的密码")
+	v.ValidateUser(user)
+	if redirectNotPass(c, uri, v) {
+		return
+	}
+
 	if user.Password != passwordAgain {
-		redirectError(c, "/register", "两次密码输入不一致")
+		redirectError(c, uri, "两次密码输入不一致")
 		return
 	}
 	if err := user.Create(); err != nil {
-		redirectError(c, "/register", err.Error())
+		redirectError(c, uri, err.Error())
 		return
 	}
 	redirect(c, "/login", nil)

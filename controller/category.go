@@ -5,7 +5,6 @@ import (
 	"media_framwork/model"
 	"media_framwork/tool"
 	"net/http"
-	"strings"
 )
 
 /**
@@ -55,8 +54,9 @@ func PageCategoryUpdate(c *gin.Context) {
 */
 func CategoryCreate(c *gin.Context) {
 	name := c.PostForm("name")
-	if strings.TrimSpace(name) == "" {
-		redirectError(c, "/admin/new_category", "标签名不能为空")
+	v := MyValidator{}
+	v.Size(name, 2, 25, "标签名称")
+	if redirectNotPass(c, "/admin/new_category", v) {
 		return
 	}
 	ct := &model.Category{Name: name}
@@ -73,14 +73,23 @@ func CategoryCreate(c *gin.Context) {
 func CategoryUpdate(c *gin.Context) {
 	id := c.Param("id")
 	name := c.PostForm("name")
+	uri := "/admin/category/update/" + id
+
+	v := MyValidator{}
+	v.Size(name, 2, 25, "标签名称")
+
+	if redirectNotPass(c, uri, v) {
+		return
+	}
+
 	ct := &model.Category{}
 	ct.ID = tool.GetInt(id)
 	ct.Name = name
 	if err := ct.Update(); err != nil {
-		redirectError(c, "/admin/category/update/"+id, err.Error())
+		redirectError(c, uri, err.Error())
 		return
 	}
-	redirect(c, "/admin/category/update/"+id, nil)
+	redirect(c, uri, nil)
 }
 
 /**

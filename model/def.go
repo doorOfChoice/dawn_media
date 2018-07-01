@@ -7,8 +7,6 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"log"
-	"media_framwork/conf"
 	"media_framwork/tool"
 	"strconv"
 	"time"
@@ -180,22 +178,8 @@ func (p *Page) generateLink() {
 	raw.Set("page", strconv.Itoa(p.PrevPage))
 	p.PrevLink = path + "?" + raw.Encode()
 
-	log.Println(p.PrevPage, p.NextPage, p.PrevLink, p.NextLink)
 }
 
-/**
-已经被删除的DB
-*/
-func DeleteDB(i interface{}) *gorm.DB {
-	return db.Model(i).Where("soft_delete=2")
-}
-
-/**
-未被删除的DB
-*/
-func UnDeleteDB(i interface{}) *gorm.DB {
-	return db.Model(i).Where("soft_delete=1")
-}
 
 /**
 批量删除
@@ -234,180 +218,5 @@ func FindById(i interface{}, id int) (interface{}, error) {
 	return i, nil
 }
 
-/**
-创建分类
-*/
-func (c *Category) Create() error {
-	count := 0
-	db.Model(Category{}).Where("name=?", c.Name).Count(&count)
-	if count != 0 {
-		return errors.New("分类已经存在")
-	}
-	db.Save(c)
-	return db.Error
-}
 
-/**
-更新分类
-*/
-func (c *Category) Update() error {
-	if u, err := FindById(&Category{}, c.ID); err != nil {
-		return err
-	} else {
-		ct := u.(*Category)
-		count := 0
-		db.Model(c).Where("name=?", c.Name).Count(&count)
-		if count != 0 {
-			return errors.New("标签名已被占用")
-		}
-		ct.Name = c.Name
-		db.Save(ct)
-		return db.Error
-	}
-}
 
-func (m *Media) Create() error {
-	tx := db.Begin()
-	tx.Save(m)
-	if err := tx.Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	tx.Model(m).Association("Categories").Append(m.Categories)
-	if err := tx.Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	for _, ma := range m.MediaAttributes {
-		if err := ma.Create(tx); err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	return tx.Commit().Error
-}
-
-func (m *Media) Update() error {
-	var media *Media
-	if t, err := FindById(&Media{}, m.ID); err != nil {
-		return err
-	} else {
-		media = t.(*Media)
-	}
-	media.Title = m.Title
-	media.Introduction = m.Introduction
-	media.Cover = m.Cover
-	tx := db.Begin()
-	if err := tx.Save(media).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	tx.Model(media).Association("Categories").Clear().Append(m.Categories)
-	if err := tx.Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	for _, ma := range m.MediaAttributes {
-		if err := ma.Update(tx); err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	return tx.Commit().Error
-}
-
-func (m *Media) Get() error {
-	m.Categories = make([]*Category, 0)
-	m.MediaAttributes = make([]*MediaAttribute, 0)
-	count := 0
-	db.Find(m).Count(&count)
-	if count == 0 {
-		return errors.New("没有找到媒体文件")
-	}
-	db.
-		Joins(`JOIN media_categories as mc ON mc.category_id=id JOIN media ON mc.media_id=media.id and media.id=?`, m.ID).
-		Find(&m.Categories)
-	db.Model(m).
-		Association("MediaAttributes").
-		Find(&m.MediaAttributes)
-	m.Cover = conf.C().CoverMap + m.Cover
-	for _, ma := range m.MediaAttributes {
-		ma.Uri = conf.C().MediaMap + ma.Uri
-	}
-	return db.Error
-}
-
-func (ma *MediaAttribute) Update(i ...interface{}) error {
-	var tx *gorm.DB
-	if len(i) != 0 {
-		tx = i[0].(*gorm.DB)
-	}
-	count := 0
-	tx.Model(ma).Count(&count)
-	if count == 0 {
-		return errors.New("属性" + strconv.Itoa(ma.ID) + "不存在")
-	}
-	return tx.Model(ma).Update(ma).Error
-}
-
-func (ma *MediaAttribute) Create(i ...interface{}) error {
-	var tx *gorm.DB
-	if len(i) != 0 {
-		tx = i[0].(*gorm.DB)
-	}
-	return tx.Save(ma).Error
-}
-
-func (u *User) Create() error {
-	count := 0
-	db.
-		Model(u).
-		Where("username=?", u.Username).
-		Count(&count)
-	if count > 0 {
-		return errors.New("用户已经被注册")
-	}
-	u.Password = tool.Md5EncodeWithSalt(u.Password, conf.C().PassSalt)
-	return db.Save(u).Error
-}
-
-func (u *User) Update() error {
-	user := &User{}
-	user.ID = u.ID
-
-	if err := user.Get(); err != nil {
-		return errors.New("用户不存在")
-	}
-	if u.Password != "" {
-		user.Password = tool.Md5EncodeWithSalt(u.Password, conf.C().PassSalt)
-	}
-	user.Nickname = u.Nickname
-	user.Authority = u.Authority
-	user.Avatar = u.Avatar
-	return db.Model(user).Update(user).Error
-}
-
-func (u *User) Get() error {
-	count := 0
-	db.Find(u).Count(&count)
-	if count == 0 {
-		return errors.New("用户不存在")
-	}
-	u.Avatar = conf.C().AvatarMap + u.Avatar
-	return nil
-}
-
-func FindUserByLogin(username, password string) (*User, error) {
-	count := 0
-	user := &User{}
-	password = tool.Md5EncodeWithSalt(password, conf.C().PassSalt)
-	db.
-		Where("username=? and password=?", username, password).
-		Find(user).
-		Count(&count)
-	if count == 0 {
-		return nil, errors.New("用户名或者密码错误")
-	}
-	return user, nil
-}

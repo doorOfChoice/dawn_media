@@ -89,10 +89,10 @@
                         {{template "admintpl/alert" .}}
                         {{/*批量删除*/}}
                         {{if eq .trash "0"}}
-                        <form action="/admin/category/delete" method="POST" id="submit-from"
+                        <form action="/admin/category/delete" method="POST" id="submit-form"
                               enctype="application/x-www-form-urlencoded">
                         {{else}}
-                        <form action="/admin/category/recover" method="POST" id="submit-from"
+                        <form action="/admin/category/recover" method="POST" id="submit-form"
                               enctype="application/x-www-form-urlencoded">
                         {{end}}
                             <div class="x_content">

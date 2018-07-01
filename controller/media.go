@@ -10,7 +10,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -54,10 +53,18 @@ func PageMediaUpdate(c *gin.Context) {
 更新媒体控制器
 */
 func MediaUpdate(c *gin.Context) {
+	uri := "/admin/media/update/" + c.Param("id")
 	media := &model.Media{}
 	media.ID = tool.GetInt(c.Param("id"))
 	media.Title = c.PostForm("title")
 	media.Introduction = c.PostForm("introduction")
+
+	v := MyValidator{}
+	v.ValidateMedia(media)
+	if redirectNotPass(c, uri, v) {
+		return
+	}
+
 	ctIds := tool.GetInts(c.PostFormArray("ct_ids"))
 	for _, id := range ctIds {
 		ct := &model.Category{}
@@ -67,7 +74,6 @@ func MediaUpdate(c *gin.Context) {
 
 	var err error
 	//跳转网址
-	uri := "/admin/media/update/" + c.Param("id")
 	if err = dealMediaFile(c, media, hookFile(c)); err == nil {
 		if err = media.Update(); err == nil {
 			redirectOK(c, uri, "更新成功")
@@ -127,9 +133,17 @@ func PageMediaManage(c *gin.Context) {
 添加媒体控制器
 */
 func MediaAdd(c *gin.Context) {
+	uri := "/admin/media/update/" + c.Param("id")
 	media := &model.Media{}
 	media.Title = c.PostForm("title")
 	media.Introduction = c.PostForm("introduction")
+
+	v := MyValidator{}
+	v.ValidateMedia(media)
+	if redirectNotPass(c, uri, v) {
+		return
+	}
+
 	ctIds := tool.GetInts(c.PostFormArray("ct_ids"))
 	for _, id := range ctIds {
 		ct := &model.Category{}
@@ -140,7 +154,7 @@ func MediaAdd(c *gin.Context) {
 	var err error
 	if err = dealMediaFile(c, media, hookFile(c)); err == nil {
 		if err = media.Create(); err == nil {
-			redirectOK(c, "/admin/media/update/"+strconv.Itoa(media.ID), "创建媒体成功")
+			redirectOK(c, uri, "创建媒体成功")
 			return
 		}
 	}
