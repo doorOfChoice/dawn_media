@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Gentelella Alela! | </title>
+    <title>流媒体后台管理</title>
 
     <!-- Bootstrap -->
     <link href="/static/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -105,7 +105,7 @@
                             <td>
                                 <ul class="list-inline">
                                     <li>
-                                        <img src="{{.Avatar}}" class="user-head-small" alt="Avatar">
+                                        <img src="{{$.avatarMap}}{{.Avatar}}" class="user-head-small" alt="Avatar">
                                     </li>
                                 </ul>
                             </td>
@@ -133,7 +133,17 @@
                       </tbody>
                     </table>
                     <!-- end project list -->
-
+                  {{if eq .page.CurCount 0}}
+                      <center style="font-size: 1.5em;">空空如也🤣</center>
+                  {{end}}
+                  <div style="display: inline-block;">
+                      <nav aria-label="...">
+                          <ul class="pager">
+                              <li><a href="{{.page.PrevLink}}">Previous</a></li>
+                              <li><a href="{{.page.NextLink}}">Next</a></li>
+                          </ul>
+                      </nav>
+                  </div>
                   </div>
                 </div>
               </div>

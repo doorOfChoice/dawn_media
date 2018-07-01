@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"strconv"
 )
 
 type mediaAttributeDto struct {
@@ -41,6 +42,7 @@ func PageMediaUpdate(c *gin.Context) {
 		redirectError(c, "/404", err.Error())
 		return
 	}
+
 	categories := make([]*model.Category, 0)
 	model.DB().Select("id,name").Find(&categories)
 	c.HTML(http.StatusOK, "admin/media_update", h(gin.H{
@@ -54,7 +56,7 @@ func PageMediaUpdate(c *gin.Context) {
 */
 func PageMediaManage(c *gin.Context) {
 	medias := make([]*model.Media, 0)
-	p := model.DefaultPage(c)
+	page := model.DefaultPage(c)
 	curDB := model.DB()
 	trash := c.DefaultQuery("trash", "0")
 	if title := c.DefaultQuery("title", ""); title != "" {
@@ -63,11 +65,11 @@ func PageMediaManage(c *gin.Context) {
 	if id := c.DefaultQuery("id", ""); id != "" {
 		curDB = curDB.Where("id=?", id)
 	}
-	p.Find(&medias, curDB, trash != "0")
+	page.Find(&medias, curDB, trash != "0")
 	c.HTML(http.StatusOK, "admin/mediaManage", h(gin.H{
 		"data":  medias,
 		"trash": trash,
-		"page":  p,
+		"page":  page,
 	}, c))
 }
 
@@ -153,7 +155,7 @@ func MediaAdd(c *gin.Context) {
 	var err error
 	if err = dealMediaFile(c, media, hookFile(c)); err == nil {
 		if err = media.Create(); err == nil {
-			redirectOK(c, "/admin/media/update/" + c.Param("id"), "创建媒体成功")
+			redirectOK(c, "/admin/media/update/" + strconv.Itoa(media.ID), "创建媒体成功")
 			return
 		}
 	}

@@ -25,14 +25,12 @@ func PageUserManage(c *gin.Context) {
 	curDB := model.DB()
 	trash := c.DefaultQuery("trash", "0")
 	users := make([]*model.User, 0)
-	p := model.DefaultPage(c)
-	p.Find(&users, curDB, trash != "0")
-	for _, user := range users {
-		user.Avatar = conf.C().AvatarMap + user.Avatar
-	}
+	page := model.DefaultPage(c)
+	page.Find(&users, curDB, trash != "0")
 	c.HTML(http.StatusOK, "admin/userManage", h(gin.H{
 		"users": users,
 		"trash": trash,
+		"page" : page,
 	}, c))
 }
 
@@ -51,6 +49,68 @@ func PageUserUpdate(c *gin.Context) {
 
 func PageUserAdd(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/user_add", h(gin.H{}, c))
+}
+
+func PageODUserChangePwd(c *gin.Context) {
+	c.HTML(http.StatusOK, "ordinary/update_pwd", h(gin.H{}, c))
+}
+
+func PageODUserChangeInfo(c *gin.Context) {
+	c.HTML(http.StatusOK, "ordinary/update_info", h(gin.H{}, c))
+}
+
+func ODUserChangeInfo(c *gin.Context) {
+	var authUser *model.User
+	uri := "/ordinary/info_update"
+	if t, ok := c.Get("authUser"); ok {
+		authUser = t.(*model.User)
+	}
+	authUser.Nickname = c.PostForm("nickname")
+	v := MyValidator{}
+	v.ValidateODUserUpdate(authUser)
+	if redirectNotPass(c, uri, v) {
+		return
+	}
+	if err := dealAvatar(c, authUser); err != nil {
+		redirectError(c, uri, err.Error())
+		return
+	}
+	redirectOK(c, uri, "更新基本信息成功")
+}
+
+func ODUserChangePwd(c *gin.Context) {
+	var authUser *model.User
+	uri := "/ordinary/pwd_update"
+	if t, ok := c.Get("authUser"); ok {
+		authUser = t.(*model.User)
+	}
+	pwd := c.PostForm("origin")
+	newPwd := c.PostForm("new_password")
+	againPwd := c.PostForm("again_password")
+
+	v := MyValidator{}
+	v.ValidateODPwdUpdate(pwd, newPwd, againPwd)
+	if redirectNotPass(c, uri, v) {
+		return
+	}
+
+	if newPwd != againPwd {
+		redirectError(c, uri, "两次输入的密码不一致")
+		return
+	}
+
+	if tool.Md5EncodeWithSalt(pwd, conf.C().PassSalt) != authUser.Password {
+		redirectError(c, uri, "旧密码错误")
+		return
+	}
+	user := &model.User{}
+	user.ID = authUser.ID
+	user.Password = newPwd
+	if err := user.Update(); err != nil {
+		redirectError(c, uri, err.Error())
+		return
+	}
+	redirectOK(c, uri, "更新密码成功")
 }
 
 func UserAdd(c *gin.Context) {

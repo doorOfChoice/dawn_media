@@ -1,6 +1,7 @@
-{{define "admin/categoryAdd"}}
+{{define "ordinary/user_record"}}
 <!DOCTYPE html>
 <html lang="en">
+
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <!-- Meta, title, CSS, favicons, etc. -->
@@ -8,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>流媒体后台管理</title>
+    <title>用户后台</title>
 
     <!-- Bootstrap -->
     <link href="/static/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,52 +18,47 @@
     <!-- NProgress -->
     <link href="/static/vendors/nprogress/nprogress.css" rel="stylesheet">
     
-    <!-- Custom Theme Style -->
+    <!-- Custom styling plus plugins -->
     <link href="/static/build/css/custom.min.css" rel="stylesheet">
   </head>
 
   <body class="nav-md">
     <div class="container body">
       <div class="main_container">
-        {{template "admintpl/navigator" .}}
+
+        {{template "ordinarytpl/navigator" .}}
 
         <!-- page content -->
         <div class="right_col" role="main">
           <div class="">
             <div class="page-title">
               <div class="title_left">
-                <h3>分类</h3>
+                <h3> 浏览记录 </h3>
               </div>
-
+            </div>
               <div class="title_right">
                 <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
                   <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search for...">
                     <span class="input-group-btn">
-                              <button class="btn btn-default" type="button">Go!</button>
-                          </span>
+                        <button class="btn btn-default" type="button">Go!</button>
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
+
             <div class="clearfix"></div>
 
             <div class="row">
-              <div class="col-md-12 col-sm-12 col-xs-12">
+              <div class="col-md-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2>添加分类 <small>sub title</small></h2>
+                    <h2>浏览记录 <small> 看看你一天做了些啥 </small></h2>
                     <ul class="nav navbar-right panel_toolbox">
                       <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
@@ -70,29 +66,43 @@
                     <div class="clearfix"></div>
                   </div>
                   <div class="x_content">
-
-                    <form class="form-horizontal form-label-left" id="submit-form" novalidate  method="post" enctype="application/x-www-form-urlencoded">
-                    {{template "admintpl/alert" .}}
-                      <p>在这里添加你想要的分类标签</a>
-                      </p>
-                      <span class="section">分类信息</span>
-
-                      <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">标签名称 <span class="required">*</span>
-                        </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input  class="form-control col-md-7 col-xs-12"  name="name" placeholder="请输入任意字符"  type="text">
+                    <div class="row">
+                      {{range .records}}
+                      {{with .Media}}
+                      <div class="col-md-55">
+                        <div class="thumbnail">
+                          <div class="image view view-first">
+                            <img style="width: 100%; display: block;" src="{{$.coverMap}}{{.Cover}}" alt="image" />
+                            <div class="mask">
+                              <p>Your Text</p>
+                              <div class="tools tools-bottom">
+                                <a href="#"><i class="fa fa-link"></i></a>
+                                <a href="#"><i class="fa fa-pencil"></i></a>
+                                <a href="#"><i class="fa fa-times"></i></a>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="caption">
+                            <p>{{.Title}}</p>
+                            <p>{{.CreatedAt | formatDate}}</p>
+                          </div>
                         </div>
                       </div>
-
-                      <div class="ln_solid"></div>
-                      <div class="form-group">
-                        <div class="col-md-6 col-md-offset-3">
-                          <button type="submit" class="btn btn-success" id="submit-btn">提交</button>
-                        </div>
-                      </div>
-                    </form>
+                      {{end}}
+                      {{end}}
+                    </div>
                   </div>
+                {{if eq .page.CurCount 0}}
+                    <center style="font-size: 1.5em;">空空如也🤣</center>
+                {{end}}
+                    <div style="display: inline-block;">
+                        <nav aria-label="...">
+                            <ul class="pager">
+                                <li><a href="{{.page.PrevLink}}">Previous</a></li>
+                                <li><a href="{{.page.NextLink}}">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
               </div>
             </div>
@@ -100,9 +110,7 @@
         </div>
         <!-- /page content -->
 
-
-        <!-- /footer content -->
-        {{template "admintpl/footer" .}}
+        {{template "ordinarytpl/footer" .}}
       </div>
     </div>
 
@@ -114,18 +122,9 @@
     <script src="/static/vendors/fastclick/lib/fastclick.js"></script>
     <!-- NProgress -->
     <script src="/static/vendors/nprogress/nprogress.js"></script>
-    <!-- validator -->
-    <script src="/static/vendors/validator/validator.js"></script>
 
     <!-- Custom Theme Scripts -->
     <script src="/static/build/js/custom.min.js"></script>
-
-    <script type="text/javascript">
-        $("#submit-btn").click(function (e) {
-            $("#submit-form").submit();
-            $(this).attr("disabled", true);
-        });
-    </script>
   </body>
 </html>
 {{end}}

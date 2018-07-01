@@ -18,11 +18,11 @@ func PageCategoryManage(c *gin.Context) {
 	if name := c.DefaultQuery("name", ""); name != "" {
 		curDB = curDB.Where("name=?", name)
 	}
-	p := model.DefaultPage(c)
-	p.Find(&cs, curDB, trash != "0")
+	page := model.DefaultPage(c)
+	page.Find(&cs, curDB, trash != "0")
 	c.HTML(http.StatusOK, "admin/categoryManage", h(gin.H{
 		"data":  cs,
-		"page":  p,
+		"page":  page,
 		"trash": trash,
 	}, c))
 }

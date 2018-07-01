@@ -66,6 +66,7 @@ func main() {
 		ordinary.GET("/", controller.PageODUserChangeInfo)
 		ordinary.GET("/info_update", controller.PageODUserChangeInfo)
 		ordinary.GET("/pwd_update", controller.PageODUserChangePwd)
+		ordinary.GET("/user_record", controller.PageODUserRecord)
 		ordinary.POST("/info_update", controller.ODUserChangeInfo)
 		ordinary.POST("/pwd_update", controller.ODUserChangePwd)
 	}

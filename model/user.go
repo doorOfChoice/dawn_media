@@ -2,8 +2,8 @@ package model
 
 import (
 	"errors"
-	"media_framwork/tool"
 	"media_framwork/conf"
+	"media_framwork/tool"
 )
 
 func (u *User) Create() error {
@@ -14,6 +14,10 @@ func (u *User) Create() error {
 		Count(&count)
 	if count > 0 {
 		return errors.New("用户已经被注册")
+	}
+	db.Model(u).Count(&count)
+	if count == 0 {
+		u.Authority = ADMIN
 	}
 	u.Password = tool.Md5EncodeWithSalt(u.Password, conf.C().PassSalt)
 	return db.Save(u).Error
@@ -41,7 +45,6 @@ func (u *User) Get() error {
 	if count == 0 {
 		return errors.New("用户不存在")
 	}
-	u.Avatar = conf.C().AvatarMap + u.Avatar
 	return nil
 }
 

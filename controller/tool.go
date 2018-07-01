@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"media_framwork/model"
 	"net/http"
+	"media_framwork/conf"
 )
 
 type MyValidator struct {
@@ -40,14 +41,17 @@ func (v *MyValidator) ValidateUserUpdate(user *model.User) {
 	}
 	v.Size(user.Nickname, 1, 20, "用户昵称")
 }
+
 func (v *MyValidator) ValidateODUserUpdate(user *model.User) {
 	v.Size(user.Nickname, 1, 20, "用户昵称")
 }
+
 func (v *MyValidator) ValidateODPwdUpdate(o, n, a string) {
 	v.Size(o, 4, 30, "原始密码")
 	v.Size(n, 4, 30, "新密码")
 	v.Size(a, 4, 30, "重复的密码")
 }
+
 /**
 在原始返回数据里封装错误和成功消息
 */
@@ -57,6 +61,9 @@ func h(gh gin.H, c *gin.Context) gin.H {
 	if authUser, ok := c.Get("authUser"); ok {
 		gh["authUser"] = authUser
 	}
+	gh["avatarMap"] = conf.C().AvatarMap
+	gh["coverMap"] = conf.C().CoverMap
+	gh["mediaMap"] = conf.C().MediaMap
 	return gh
 }
 
@@ -100,3 +107,4 @@ func redirectNotPass(c *gin.Context, website string, v MyValidator) bool {
 	}
 	return false
 }
+

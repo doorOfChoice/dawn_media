@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Gentelella Alela! | </title>
+    <title>流媒体后台管理</title>
 
     <!-- Bootstrap -->
     <link href="/static/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -96,7 +96,7 @@
                             <label class="control-label col-md-3 col-sm-3 col-xs-12">封面</label>
                             <div class="col-md-9 col-sm-9 col-xs-12">
                                 <input type="file" id="cover"  onchange="showPicture(this)" name="cover">
-                                <img src="{{.Cover}}" class="media-head" alt="No Cover" id="cover-img">
+                                <img src="{{$.coverMap}}{{.Cover}}" class="media-head" alt="No Cover" id="cover-img">
                             </div>
                         </div>
                         <div class="form-group">

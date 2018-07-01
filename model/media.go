@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"media_framwork/conf"
 )
 
 func (m *Media) Create() error {
@@ -70,10 +69,6 @@ func (m *Media) Get() error {
 	db.Model(m).
 		Association("MediaAttributes").
 		Find(&m.MediaAttributes)
-	m.Cover = conf.C().CoverMap + m.Cover
-	for _, ma := range m.MediaAttributes {
-		ma.Uri = conf.C().MediaMap + ma.Uri
-	}
 	return db.Error
 }
 
