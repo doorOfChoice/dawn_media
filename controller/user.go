@@ -59,7 +59,7 @@ func UserAdd(c *gin.Context) {
 	user.Nickname = c.PostForm("nickname")
 	user.Password = c.PostForm("password")
 	user.Authority = tool.GetInt(c.PostForm("authority"))
-
+	user.Avatar = "default.jpg"
 	//验证用户用户名和密码的合法性
 	v := MyValidator{}
 	v.ValidateUser(user)

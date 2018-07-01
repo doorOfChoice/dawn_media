@@ -32,14 +32,7 @@
     <!-- Custom Theme Style -->
     <link href="/static/build/css/custom.min.css" rel="stylesheet">
 
-      <style>
-          .category {
-              font-size: 1.2em;
-              display: inline-block;
-              margin-top: 1em;
-              margin-left: 5px;
-          }
-      </style>
+      <link rel="stylesheet" href="/static/css/custom.css">
   </head>
 
   <body class="nav-md">
@@ -87,8 +80,8 @@
                             <label class="control-label col-md-3 col-sm-3 col-xs-12">头像</label>
                             <div class="col-md-9 col-sm-9 col-xs-12">
                                 <center>
-                                    <img src="{{.Avatar}}" alt="" style="width: 128px; height:128px;border-radius: 50%;">
-                                    <input type="file"  name="avatar" placeholder="Default Input" >
+                                    <img src="{{.Avatar}}" alt="" class="user-head" id="avatar-img">
+                                    <input type="file"  name="avatar" placeholder="Default Input" id="avatar" onchange="showPicture(this)">
                                 </center>
                             </div>
                       </div>
@@ -202,6 +195,14 @@
             });
             cts_choice.append(em);
         });
+        function showPicture(e) {
+            var reads= new FileReader();
+            var f= document.getElementById('avatar').files[0];
+            reads.readAsDataURL(f);
+            reads.onload=function (e) {
+                document.getElementById('avatar-img').src=this.result;
+            };
+        }
     </script>
   </body>
 </html>

@@ -50,6 +50,28 @@ func PageMediaUpdate(c *gin.Context) {
 }
 
 /**
+管理媒体控制器
+*/
+func PageMediaManage(c *gin.Context) {
+	medias := make([]*model.Media, 0)
+	p := model.DefaultPage(c)
+	curDB := model.DB()
+	trash := c.DefaultQuery("trash", "0")
+	if title := c.DefaultQuery("title", ""); title != "" {
+		curDB = curDB.Where("title=?", title)
+	}
+	if id := c.DefaultQuery("id", ""); id != "" {
+		curDB = curDB.Where("id=?", id)
+	}
+	p.Find(&medias, curDB, trash != "0")
+	c.HTML(http.StatusOK, "admin/mediaManage", h(gin.H{
+		"data":  medias,
+		"trash": trash,
+		"page":  p,
+	}, c))
+}
+
+/**
 更新媒体控制器
 */
 func MediaUpdate(c *gin.Context) {
@@ -108,39 +130,16 @@ func MediaRecover(c *gin.Context) {
 }
 
 /**
-管理媒体控制器
-*/
-func PageMediaManage(c *gin.Context) {
-	medias := make([]*model.Media, 0)
-	p := model.DefaultPage(c)
-	curDB := model.DB()
-	trash := c.DefaultQuery("trash", "0")
-	if title := c.DefaultQuery("title", ""); title != "" {
-		curDB = curDB.Where("title=?", title)
-	}
-	if id := c.DefaultQuery("id", ""); id != "" {
-		curDB = curDB.Where("id=?", id)
-	}
-	p.Find(&medias, curDB, trash != "0")
-	c.HTML(http.StatusOK, "admin/mediaManage", h(gin.H{
-		"data":  medias,
-		"trash": trash,
-		"page":  p,
-	}, c))
-}
-
-/**
 添加媒体控制器
 */
 func MediaAdd(c *gin.Context) {
-	uri := "/admin/media/update/" + c.Param("id")
 	media := &model.Media{}
 	media.Title = c.PostForm("title")
 	media.Introduction = c.PostForm("introduction")
 
 	v := MyValidator{}
 	v.ValidateMedia(media)
-	if redirectNotPass(c, uri, v) {
+	if redirectNotPass(c, "/admin/new_media", v) {
 		return
 	}
 
@@ -154,7 +153,7 @@ func MediaAdd(c *gin.Context) {
 	var err error
 	if err = dealMediaFile(c, media, hookFile(c)); err == nil {
 		if err = media.Create(); err == nil {
-			redirectOK(c, uri, "创建媒体成功")
+			redirectOK(c, "/admin/media/update/" + c.Param("id"), "创建媒体成功")
 			return
 		}
 	}

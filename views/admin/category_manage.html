@@ -142,7 +142,7 @@
                                             {{/*{{end}}*/}}
                                                     <a href="/admin/category/update/{{.ID}}" class="btn btn-info btn-xs"><i class="fa fa-pencil"></i> 编辑 </a>
                                                 {{if eq $.trash "0"}}
-                                                    <a href="javascript:void(0)" class="btn btn-danger btn-xs single-delete"  data-id="{{.ID}}"><i class="fa fa-trash-o"></i> 冻结 </a>
+                                                    <a href="javascript:void(0)" class="btn btn-danger btn-xs single-delete"  data-id="{{.ID}}"><i class="fa fa-trash-o"></i> 删除 </a>
                                                 {{else }}
                                                     <a href="javascript:void(0)" class="btn btn-primary btn-xs single-recover"  data-id="{{.ID}}"><i class="fa fa-trash-o"></i> 恢复 </a>
                                                 {{end}}

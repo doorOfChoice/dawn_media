@@ -35,7 +35,9 @@ func (v *MyValidator) ValidateUser(user *model.User) {
 }
 
 func (v *MyValidator) ValidateUserUpdate(user *model.User) {
-	v.Size(user.Password, 4, 30, "密码")
+	if user.Password != "" {
+		v.Size(user.Password, 4, 30, "密码")
+	}
 }
 /**
 在原始返回数据里封装错误和成功消息
