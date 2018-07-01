@@ -38,6 +38,15 @@ func (v *MyValidator) ValidateUserUpdate(user *model.User) {
 	if user.Password != "" {
 		v.Size(user.Password, 4, 30, "密码")
 	}
+	v.Size(user.Nickname, 1, 20, "用户昵称")
+}
+func (v *MyValidator) ValidateODUserUpdate(user *model.User) {
+	v.Size(user.Nickname, 1, 20, "用户昵称")
+}
+func (v *MyValidator) ValidateODPwdUpdate(o, n, a string) {
+	v.Size(o, 4, 30, "原始密码")
+	v.Size(n, 4, 30, "新密码")
+	v.Size(a, 4, 30, "重复的密码")
 }
 /**
 在原始返回数据里封装错误和成功消息

@@ -185,6 +185,8 @@ func Login(c *gin.Context) {
 		}
 		if u.Authority == model.ADMIN {
 			redirectOK(c, "/admin", "登录成功")
+		}else {
+			redirectOK(c, "/ordinary", "登录成功")
 		}
 	}
 }

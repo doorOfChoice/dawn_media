@@ -59,6 +59,16 @@ func main() {
 		auth.POST("/user/delete", controller.UserDelete)
 		auth.POST("/user/recover", controller.UserRecover)
 	}
+
+	ordinary := r.Group("/ordinary")
+	ordinary.Use(controller.MiddlewareOrdinaryAuth())
+	{
+		ordinary.GET("/", controller.PageODUserChangeInfo)
+		ordinary.GET("/info_update", controller.PageODUserChangeInfo)
+		ordinary.GET("/pwd_update", controller.PageODUserChangePwd)
+		ordinary.POST("/info_update", controller.ODUserChangeInfo)
+		ordinary.POST("/pwd_update", controller.ODUserChangePwd)
+	}
 	//普通页面
 	r.GET("/404", controller.Page404)
 	r.GET("/register", controller.PageRegister)

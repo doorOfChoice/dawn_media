@@ -1,8 +1,8 @@
-{{define "admintpl/navigator"}}
+{{define "ordinarytpl/navigator"}}
 <div class="col-md-3 left_col">
 <div class="left_col scroll-view">
     <div class="navbar nav_title" style="border: 0;">
-        <a href="index.html" class="site_title"><i class="fa fa-paw"></i> <span>流媒体管理后台</span></a>
+        <a href="index.html" class="site_title"><i class="fa fa-paw"></i> <span>用户管理</span></a>
     </div>
     <div class="clearfix"></div>
     <!-- menu profile quick info -->
@@ -25,37 +25,19 @@
         <div class="menu_section">
             <h3>General</h3>
             <ul class="nav side-menu">
-                <li><a href="/admin"><i class="fa fa-user"></i> 首页<span class="fa"></span></a>
+                <li><a href="/ordinary"><i class="fa fa-user"></i> 首页<span class="fa"></span></a>
 
                 </li>
                 <li><a><i class="fa fa-user"></i> 用户<span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                        <li><a href="/admin/new_user">新增用户</a></li>
-                        <li><a href="/admin/manage_user">用户管理</a></li>
+                        <li><a href="/ordinary/pwd_update">修改密码</a></li>
+                        <li><a href="/ordinary/info_update">修改基本信息</a></li>
+                        <li><a href="/ordinary">浏览记录</a></li>
                     </ul>
                 </li>
-                <li><a><i class="fa fa-tag"></i> 分类 <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                        <li><a href="/admin/new_category">新增分类</a></li>
-                        <li><a href="/admin/manage_category">分类管理</a></li>
-                    </ul>
-                </li>
-                <li><a><i class="fa fa-desktop"></i> 媒体 <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                        <li><a href="/admin/new_media">新增媒体</a></li>
-                        <li><a href="/admin/manage_media">媒体管理</a></li>
-                    </ul>
-                </li>
-                <li><a><i class="fa fa-wechat"></i> 评论 <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                        <li><a href="tables.html">评论管理</a></li>
-                    </ul>
-                </li>
-                <li><a><i class="fa fa-cloud-download"></i> 下载 <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                        <li><a href="tables.html">下载</a></li>
-                    </ul>
-                </li>
+
+                <li><a href="/ordinary"><i class="fa fa-user"></i> 评论<span class="fa"></span></a>
+
             </ul>
         </div>
 
