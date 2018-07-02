@@ -33,3 +33,9 @@ func (c *Category) Update() error {
 		return db.Error
 	}
 }
+
+func GetCategories() []*Category {
+	categories := make([]*Category, 0)
+	db.Where("soft_delete=?", 1).Find(&categories)
+	return categories
+}

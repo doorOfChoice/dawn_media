@@ -1,12 +1,8 @@
 package test
 
 import (
-	"math/rand"
 	"media_framwork/model"
-	"media_framwork/service"
-	"strconv"
 	"testing"
-	"time"
 	"github.com/google/uuid"
 	"log"
 	"media_framwork/conf"
@@ -20,25 +16,8 @@ import (
 
 func TestMUserCreate(t *testing.T) {
 	model.Init()
-	rand.Seed(time.Now().Unix())
-	s := strconv.Itoa(rand.Int())
-	user := &model.User{
-		Username: s,
-		Password: "123456",
-	}
-
-	if u, err := service.UserCreate(user); err != nil {
-		t.Error(err)
-	} else {
-		t.Log("第一次创建: ", u)
-	}
-
-	if u, err := service.UserCreate(user); err != nil {
-		t.Error(err)
-	} else {
-		t.Log(u)
-	}
-	//model.DB().Where("user_id=?", user.ID).Delete(&model.UserRecord{})
+	log.Println(model.GetRandomMedia())
+	log.Println(model.GetHotMedia())
 }
 
 //func TestMediaCreate(t *testing.T) {
@@ -74,20 +53,6 @@ func TestMUserCreate(t *testing.T) {
 //	//model.DB().Where("user_id=?", user.ID).Delete(&model.UserRecord{})
 //}
 
-func TestMUserLogin(t *testing.T) {
-	model.Init()
-	m := &model.User{
-		Username: "dawndevil",
-		Password: "123456",
-	}
-	if u, err := service.UserLogin(m); err != nil {
-		t.Error(err)
-	} else {
-		t.Log(u)
-	}
-
-	//model.DB().Where("user_id=?", user.ID).Delete(&model.UserRecord{})
-}
 
 func TestMSee(t *testing.T) {
 	c := "a.txt"

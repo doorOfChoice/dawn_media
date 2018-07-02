@@ -43,6 +43,7 @@ type Media struct {
 	Cover           string
 	Categories      []*Category `gorm:"many2many:media_categories" json:"categories"`
 	MediaAttributes []*MediaAttribute
+	StarCount       int `gorm:"-"`
 }
 
 type MediaAttribute struct {
@@ -127,7 +128,6 @@ func DefaultPage(c *gin.Context) *Page {
 查找数据并且生成分页信息
 */
 func (p *Page) Find(i interface{}, db *gorm.DB, delete ...bool) {
-	count := 0
 	curDB := db.Model(i)
 	if len(delete) == 1 {
 		if delete[0] {
@@ -137,12 +137,11 @@ func (p *Page) Find(i interface{}, db *gorm.DB, delete ...bool) {
 		}
 	}
 	curDB.
-		Count(&count).
+		Count(&p.Count).
 		Offset((p.CurPage - 1) * p.Limit).
 		Limit(p.Limit).
 		Find(i).
 		Count(&p.CurCount)
-	p.Count = count
 	mod := p.Count % p.Limit
 	if mod == 0 {
 		p.MaxPage = p.Count / p.Limit
@@ -180,7 +179,6 @@ func (p *Page) generateLink() {
 
 }
 
-
 /**
 批量删除
 */
@@ -217,6 +215,3 @@ func FindById(i interface{}, id int) (interface{}, error) {
 	}
 	return i, nil
 }
-
-
-

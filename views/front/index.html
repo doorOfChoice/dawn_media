@@ -1,0 +1,243 @@
+﻿{{define "front/index"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>KoolTube</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css"  type="text/css">
+
+	<!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style2.css">
+
+	<!-- Owl Carousel Assets -->
+    <link href="/static/owl-carousel/owl.carousel.css" rel="stylesheet">
+    <link href="/static/owl-carousel/owl.theme.css" rel="stylesheet">
+
+	<!-- Custom Fonts -->
+    <link rel="stylesheet" href="/static/font-awesome-4.4.0/css/font-awesome.min.css"  type="text/css">
+
+	<!-- jQuery -->
+	<script src="/static/js/jquery-2.1.1.js"></script>
+    <script src="/static/owl-carousel/owl-carousel.js"></script>
+	<!-- Core JavaScript Files -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <style>
+        img.fix-size {
+            max-width:200px;
+            height:200px;
+        }
+    </style>
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="/static/js/html5shiv.js"></script>
+    <script src="/static/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<!-- Header -->
+    {{template "front/navigator" .}}
+	<!-- /////////////////////////////////////////Content -->
+	<div class="copyrights">Collect from <a href="http://www.cssmoban.com/" >网页模板</a></div>
+    <div id="page-content" class="index-page">
+
+		<div class="container">
+			<div class="row">
+				<div id="main-content" class="col-md-8">
+                    <!-- 随机视频 -->
+					<div class="box">
+						<div class="box-header">
+							<h2><i class="fa fa-play-circle-o"></i>随机推送</h2>
+						</div>
+						<!-- 随机电影 -->
+						<div class="box-content">
+							<div class="row" class="flow-box">
+								{{range .randomMedias}}
+								<div class="col-md-4 flow">
+									<div class="wrap-vid">
+										<div class="zoom-container">
+											<div class="zoom-caption">
+												<span>Random</span>
+												<a href="/single?id={{.ID}}">
+													<i class="fa fa-play-circle-o fa-5x" style="color: #fff"></i>
+												</a>
+												<p>{{.Title}}</p>
+											</div>
+											<img src="{{$.coverMap}}{{.Cover}}" class="fix-size" />
+										</div>
+										<h3 class="vid-name"><a href="/single?id={{.ID}}">{{.Title}}</a></h3>
+										<div class="info">
+											<span><i class="fa fa-calendar"></i>{{.CreatedAt | formatDate}}</span>
+										</div>
+									</div>
+								</div>
+								{{end}}
+							</div>
+						</div>
+						<div class="line"></div>
+					</div>
+                    <!-- 最热视频 -->
+					<div class="box">
+						<div class="box-header">
+							<h2><i class="fa fa-globe"></i>热门视频</h2>
+						</div>
+						<div class="box-content">
+							<!-- 最热视频 -->
+							<div class="row">
+								{{range $i, $v := .hotMedias}}
+								{{if eq $i  0}}
+								<div class="col-md-6">
+									<div class="wrap-vid">
+										<div class="zoom-container">
+											<div class="zoom-caption">
+												<span>Hot</span>
+												<a href="/single?id={{.ID}}">
+													<i class="fa fa-play-circle-o fa-5x" style="color: #fff"></i>
+												</a>
+												<p>{{$v.Title}}</p>
+											</div>
+											<img src="{{$.coverMap}}{{$v.Cover}}" />
+										</div>
+										<h3 class="vid-name"><a href="/single?id={{.ID}}">{{$v.Title}}</a></h3>
+										<div class="info">
+											<span><i class="fa fa-calendar"></i>{{$v.CreatedAt | formatDate}}</span>
+											<span><i class="fa fa-heart"></i>{{$v.StarCount}}</span>
+										</div>
+									</div>
+									<p class="more">{{$v.Introduction}}</p>
+								</div>
+								{{else}}
+								<div class="col-md-6">
+									<div class="post wrap-vid" style="margin-top:1em;">
+										<div class="zoom-container">
+											<div class="zoom-caption">
+												<span>Hot</span>
+												<a href="/single?id={{.ID}}">
+													<i class="fa fa-play-circle-o fa-5x" style="color: #fff"></i>
+												</a>
+												<p>{{$v.Title}}</p>
+											</div>
+											<img src="{{$.coverMap}}{{$v.Cover}}" />
+										</div>
+										<div class="wrapper">
+											<h5 class="vid-name"><a href="/single?id={{.ID}}">{{$v.Title}}</a></h5>
+											<div class="info">
+												<span><i class="fa fa-calendar"></i>{{$v.CreatedAt | formatDate}}</span>
+												<span><i class="fa fa-heart"></i>{{$v.StarCount}}</span>
+											</div>
+										</div>
+									</div>
+
+								</div>
+								{{end}}
+								{{end}}
+							</div>
+						</div>
+						<div class="line"></div>
+					</div>
+					<!-- 最新视频 -->
+					<div class="box">
+						<div class="box-header">
+							<h2><i class="fa fa-vimeo-square"></i>最新视频</h2>
+						</div>
+						<div class="box-content">
+							<div class="row">
+								{{range .newMedias}}
+								<div class="col-md-4">
+									<div class="wrap-vid">
+										<div class="zoom-container">
+											<div class="zoom-caption">
+												<span>New</span>
+												<a href="/single?id={{.ID}}">
+													<i class="fa fa-play-circle-o fa-5x" style="color: #fff"></i>
+												</a>
+												<p>{{.Title}}</p>
+											</div>
+                                            <img src="{{$.coverMap}}{{.Cover}}"  class="fix-size"alt="">
+                                        </div>
+										<h3 class="vid-name"><a href="/single?id={{.ID}}">{{.Title}}</a></h3>
+										<div class="info">
+											<span><i class="fa fa-calendar"></i>{{.CreatedAt | formatDate}}</span>
+										</div>
+									</div>
+								</div>
+								{{end}}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="sidebar" class="col-md-4">
+					<!---- Start Widget ---->
+					<div class="widget wid-post">
+						<div class="heading"><h4><i class="fa fa-comments"></i> Comment</h4></div>
+						<div class="content">
+							<div class="post">
+								<a href="single.html">
+									<img src="images/user.png" />
+								</a>
+								<div class="wrapper">
+									<a href="#"><h5>Curabitur tincidunt porta lorem.</h5></a>
+									<ul class="list-inline">
+										<li><i class="fa fa-calendar"></i>25/3/2015</li>
+										<li><i class="fa fa-comments"></i>1,200</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="line"></div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<footer>
+
+		<div class="bottom-footer">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6 col-sm-6 copyright">
+						<span>Copyright &copy; 2015.Company name All rights reserved.<a target="_blank" href="http://www.cssmoban.com/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a></span>
+					</div>
+					<div class="col-md-6 col-sm-6 link">
+						<div class="menu-footer-menu-container">
+							<ul id="menu-footer-menu" class="menu list-inline">
+								<li><a href="#"><i class="fa fa-home"></i> Home</a></li>
+								<li><a href="#"><i class="fa fa-comments"></i> Contact</a></li>
+								<li><a href="#"><i class="fa fa-question-circle"></i> FAQ</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<!-- Footer -->
+
+	<!-- JS -->
+	<script src="/static/owl-carousel/owl.carousel.js"></script>
+    <script>
+    $(document).ready(function() {
+      $("#owl-demo").owlCarousel({
+        autoPlay: 3000,
+        items : 5,
+        itemsDesktop : [1199,4],
+        itemsDesktopSmall : [979,4]
+      });
+
+    });
+    </script>
+	
+</body>
+</html>
+{{end}}

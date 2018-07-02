@@ -1,0 +1,53 @@
+{{define "front/navigator"}}
+<header>
+    <!--Top-->
+    <nav id="top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-sm-6">
+                    <strong>dawndevil影院</strong>
+                </div>
+                <div class="col-md-6 col-sm-6">
+                    <ul class="list-inline top-link link">
+                        <li><a href="/"><i class="fa fa-home"></i>主页</a></li>
+                        <li><a href="/login"><i class="fa fa-user"></i>账户</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!--Navigation-->
+    <nav id="menu" class="navbar">
+        <div class="container">
+            <div class="navbar-header"><span id="heading" class="visible-xs">Categories</span>
+                <button type="button" class="btn btn-navbar navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse"><i class="fa fa-bars"></i></button>
+            </div>
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/"><i class="fa fa-home"></i>主页</a></li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-list"></i>分类</a>
+                        <div class="dropdown-menu" style="margin-left: -203.625px;">
+                            <div class="dropdown-inner">
+                                <ul class="list-unstyled">
+                                    <li><a href="/medias">分类列表</a></li>
+                                </ul>
+                                <ul class="list-unstyled">
+                                {{range $i, $v := .categories}}
+                                    {{if lt $i 8}}
+                                    <li><a href="/medias?category={{.ID}}">{{.Name}}</a></li>
+                                     {{end}}
+                                {{end}}
+                                    <li><a href="/medias">查看更多</a></li>
+                                </ul>
+
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+</header>
+{{end}}

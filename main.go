@@ -70,6 +70,14 @@ func main() {
 		ordinary.POST("/info_update", controller.ODUserChangeInfo)
 		ordinary.POST("/pwd_update", controller.ODUserChangePwd)
 	}
+
+	front := r.Group("/")
+	{
+		front.GET("/", controller.PageFrontIndex)
+		front.GET("/medias", controller.PageFrontMedias)
+		front.GET("/single", controller.PageFrontSingle)
+	}
+
 	//普通页面
 	r.GET("/404", controller.Page404)
 	r.GET("/register", controller.PageRegister)

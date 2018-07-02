@@ -25,7 +25,7 @@ type mediaAttributeDto struct {
 */
 func PageMediaAdd(c *gin.Context) {
 	categories := make([]*model.Category, 0)
-	model.DB().Select("id,name").Find(&categories)
+	model.DB().Select("id,name").Where("soft_delete=1").Find(&categories)
 	c.HTML(http.StatusOK, "admin/media_add", h(gin.H{
 		"categories": categories,
 	}, c))
@@ -44,7 +44,7 @@ func PageMediaUpdate(c *gin.Context) {
 	}
 
 	categories := make([]*model.Category, 0)
-	model.DB().Select("id,name").Find(&categories)
+	model.DB().Select("id,name").Where("soft_delete=1").Find(&categories)
 	c.HTML(http.StatusOK, "admin/media_update", h(gin.H{
 		"categories": categories,
 		"media":      media,
