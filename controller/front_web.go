@@ -12,6 +12,7 @@ func PageFrontIndex(c *gin.Context) {
 		randomMedias = model.GetIndexRandomMedia()
 		hotMedias    = model.GetIndexHotMedia()
 		newMedias    = model.GetIndexNewMedia()
+		newComments = model.GetIndexNewComments()
 		categories   = model.GetCategories()
 	)
 	c.HTML(http.StatusOK, "front/index", h(gin.H{
@@ -19,6 +20,7 @@ func PageFrontIndex(c *gin.Context) {
 		"hotMedias":    hotMedias,
 		"newMedias":    newMedias,
 		"categories":   categories,
+		"newComments" : newComments,
 	}, c))
 }
 
@@ -43,18 +45,24 @@ func PageFrontMedias(c *gin.Context) {
 }
 
 func PageFrontSingle(c *gin.Context) {
-
 	var (
 		categories = model.GetCategories()
 		newMedias  = model.GetIndexNewMedia()
+		authUser *model.User
 	)
+
 	media := &model.Media{}
 	media.ID = tool.GetInt(c.DefaultQuery("id", "0"))
 	if err := media.Get(); err != nil {
 		redirectError(c, "/404", "视频不存在")
 		return
 	}
-
+	if t, ok := c.Get("authUser"); ok {
+		authUser = t.(*model.User)
+		model.UserRecordUpdate(authUser.ID, media.ID)
+	}
+	//更新历史记录
+	model.UserRecordUpdate(authUser.ID, media.ID)
 	c.HTML(http.StatusOK, "front/single", h(gin.H{
 		"categories": categories,
 		"newMedias":  newMedias,

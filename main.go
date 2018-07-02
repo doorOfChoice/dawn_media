@@ -72,10 +72,13 @@ func main() {
 	}
 
 	front := r.Group("/")
+	front.Use(controller.MiddlewareIndexAuth())
 	{
 		front.GET("/", controller.PageFrontIndex)
 		front.GET("/medias", controller.PageFrontMedias)
 		front.GET("/single", controller.PageFrontSingle)
+		front.GET("/comments", controller.GetComments)
+		front.POST("/comments", controller.CommentCreate)
 	}
 
 	//普通页面

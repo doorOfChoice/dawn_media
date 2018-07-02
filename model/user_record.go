@@ -18,5 +18,5 @@ func UserRecordUpdate(uid int, mid int) error {
 	if count == 0 {
 		return db.Save(record).Error
 	}
-	return db.Update(record).Error
+	return db.Model(record).Update(record).Error
 }

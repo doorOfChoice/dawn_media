@@ -23,9 +23,23 @@ img.user-head-small {
     margin-top: 5px;
     border-radius: 50%;
 }
+
+img.user-head-medium {
+    width:72px;
+    height: 72px;
+    margin-top: 5px;
+    border-radius: 50%;
+}
+
 .category {
     font-size: 1.2em;
     display: inline-block;
     margin-top: 1em;
     margin-left: 5px;
 }
+
+p {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+

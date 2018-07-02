@@ -37,7 +37,7 @@ func (m *Media) Update() error {
 	media.Introduction = m.Introduction
 	media.Cover = m.Cover
 	tx := db.Begin()
-	if err := tx.Save(media).Error; err != nil {
+	if err := tx.Model(media).Update(media).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

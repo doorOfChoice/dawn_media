@@ -1,12 +1,12 @@
 package test
 
 import (
-	"media_framwork/model"
-	"testing"
 	"github.com/google/uuid"
 	"log"
 	"media_framwork/conf"
+	"media_framwork/model"
 	"path/filepath"
+	"testing"
 )
 
 //func TestModel(t *testing.T) {
@@ -16,8 +16,11 @@ import (
 
 func TestMUserCreate(t *testing.T) {
 	model.Init()
-	log.Println(model.GetRandomMedia())
-	log.Println(model.GetHotMedia())
+	c := &model.Comment{}
+	c.UserID = 1
+	c.MediaID = 2
+	c.Content = "ewqewqeq"
+	model.DB().Save(c)
 }
 
 //func TestMediaCreate(t *testing.T) {
@@ -52,7 +55,6 @@ func TestMUserCreate(t *testing.T) {
 //
 //	//model.DB().Where("user_id=?", user.ID).Delete(&model.UserRecord{})
 //}
-
 
 func TestMSee(t *testing.T) {
 	c := "a.txt"

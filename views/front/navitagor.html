@@ -10,7 +10,17 @@
                 <div class="col-md-6 col-sm-6">
                     <ul class="list-inline top-link link">
                         <li><a href="/"><i class="fa fa-home"></i>主页</a></li>
-                        <li><a href="/login"><i class="fa fa-user"></i>账户</a></li>
+                        <li>
+                            {{if .authUser}}
+                                {{if eq .authUser.Authority 2}}
+                                    <a href="/admin"><is class="fa fa-user"></is>个人中心</a>
+                                {{else }}
+                                    <a href="/ordinary"><i class="fa fa-user"></i>个人中心</a>
+                                {{end}}
+                            {{else}}
+                                <a href="/login"><i class="fa fa-user"></i>登录</a>
+                            {{end}}
+                        </li>
                     </ul>
                 </div>
             </div>

@@ -22,7 +22,7 @@
 
 	<!-- Custom Fonts -->
     <link rel="stylesheet" href="/static/font-awesome-4.4.0/css/font-awesome.min.css"  type="text/css">
-
+    <link rel="stylesheet" href="/static/css/custom.css">
 	<!-- jQuery -->
 	<script src="/static/js/jquery-2.1.1.js"></script>
     <script src="/static/owl-carousel/owl-carousel.js"></script>
@@ -177,20 +177,21 @@
 				<div id="sidebar" class="col-md-4">
 					<!---- Start Widget ---->
 					<div class="widget wid-post">
-						<div class="heading"><h4><i class="fa fa-comments"></i> Comment</h4></div>
+						<div class="heading"><h4><i class="fa fa-comments"></i>最新评论</h4></div>
 						<div class="content">
 							<div class="post">
-								<a href="single.html">
-									<img src="images/user.png" />
-								</a>
+								{{range .newComments}}
 								<div class="wrapper">
-									<a href="#"><h5>Curabitur tincidunt porta lorem.</h5></a>
+									<a href="/single?id={{.Media.ID}}"><h5>影片《{{.Media.Title}}》的回复</h5></a>
+									<p>{{.Content}}</p>
 									<ul class="list-inline">
-										<li><i class="fa fa-calendar"></i>25/3/2015</li>
-										<li><i class="fa fa-comments"></i>1,200</li>
+										<li><i class="fa fa-calendar"></i>{{.CreatedAt | formatDate}}</li>
+										<li><i class="fa fa-user"></i>来自:{{.User.Nickname}}</li>
 									</ul>
 								</div>
+								{{end}}
 							</div>
+
 						</div>
 						<div class="line"></div>
 					</div>

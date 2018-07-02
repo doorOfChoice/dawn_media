@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
+	"media_framwork/conf"
 	"media_framwork/model"
 	"net/http"
-	"media_framwork/conf"
 )
 
 type MyValidator struct {
@@ -67,6 +67,14 @@ func h(gh gin.H, c *gin.Context) gin.H {
 	return gh
 }
 
+func j(code int, data interface{}, err string) gin.H {
+	return gin.H{
+		"code":  code,
+		"data":  data,
+		"error": err,
+	}
+}
+
 /**
 重定向
 */
@@ -107,4 +115,3 @@ func redirectNotPass(c *gin.Context, website string, v MyValidator) bool {
 	}
 	return false
 }
-

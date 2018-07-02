@@ -18,75 +18,77 @@ const (
 )
 
 type Model struct {
-	ID        int       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time `json:"createAt"`
-	UpdatedAt time.Time `json:"updateAt"`
+	ID        int `gorm:"primary_key" `
+	CreatedAt time.Time
+	UpdatedAt time.Time
 	//1 undelete 2 delete
 	SoftDelete int `gorm:"default:1"`
 }
 
 type User struct {
 	Model
-	Username string `gorm:"type:char(64);not null" json:"username"`
-	Password string `gorm:"type:char(64);not null" json:"password"`
-	Nickname string `gorm:"type:char(64);not null" json:"nickname"`
+	Username string `gorm:"type:char(64);not null" `
+	Password string `gorm:"type:char(64);not null" `
+	Nickname string `gorm:"type:char(64);not null" `
 	Avatar   string
 	//1 COMMON 2 ADMIN
-	Authority   int           `gorm:"default:1"`
-	UserRecords []*UserRecord `json:"userRecords"`
+	Authority   int `gorm:"default:1"`
+	UserRecords []*UserRecord
 }
 
 type Media struct {
 	Model
-	Title           string `gorm:"type:varchar(255);not null;index" json:"title"`
-	Introduction    string `gorm:"type:varchar(1000);not null" json:"introduction"`
+	Title           string `gorm:"type:varchar(255);not null;index"`
+	Introduction    string `gorm:"type:varchar(1000);not null"`
 	Cover           string
-	Categories      []*Category `gorm:"many2many:media_categories" json:"categories"`
+	Categories      []*Category `gorm:"many2many:media_categories"`
 	MediaAttributes []*MediaAttribute
 	StarCount       int `gorm:"-"`
 }
 
 type MediaAttribute struct {
-	ID             int `gorm:"primary_key" json:"id"`
+	ID             int `gorm:"primary_key"`
 	Media          *Media
-	MediaID        int
+	MediaID        int `gorm:"index;not null"`
 	Uri            string
 	Filename       string
 	Description    string
-	DownloadStatus int `gorm:"type:tinyint;default 0" json:"downloadState"`
+	DownloadStatus int `gorm:"type:tinyint;default 0"`
 }
 
 type Category struct {
 	Model
-	Name   string   `gorm:"type:varchar(100);not null;index" json:"name"`
-	Medias []*Media `gorm:"many2many:media_categories" json:"medias"`
+	Name   string   `gorm:"type:varchar(100);not null;index"`
+	Medias []*Media `gorm:"many2many:media_categories"`
 }
 
 type UserRecord struct {
-	ID        int       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	User      *User     `json:"user"`
-	UserID    int       `gorm:"index" json:"-"`
-	Media     *Media    `json:"media"`
-	MediaID   int       `gorm:"index" json:"-"`
+	ID        int `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	User      *User
+	UserID    int `gorm:"index;not null"`
+	Media     *Media
+	MediaID   int `gorm:"index;not null"`
 }
 
 type Star struct {
 	Model
-	User    *User  `json:"user"`
-	UserID  int    `gorm:"index" json:"-"`
-	Media   *Media `json:"media"`
-	MediaID int    `gorm:"index"json:"-"`
+	User    *User
+	UserID  int `gorm:"index;not null"`
+	Media   *Media
+	MediaID int `gorm:"index;not null"`
 }
 
 type Comment struct {
 	Model
-	User    *User
-	UserID  int `gorm:"index"`
-	Media   *Media
-	MediaID int    `gorm:"index"`
-	Content string `gorm:"varchar(1000);not null"`
+	User            *User
+	UserID          int      `gorm:"index;not null"`
+	ParentComment   *Comment
+	ParentCommentID int      `gorm:"index" json:"Parent_ID,string"`
+	Media           *Media
+	MediaID         int    `gorm:"index;not null" json:"Media_ID,string"`
+	Content         string `gorm:"varchar(1000);not null" json:"Content"`
 }
 
 type Page struct {
@@ -214,4 +216,10 @@ func FindById(i interface{}, id int) (interface{}, error) {
 		return nil, errors.New("数据不存在")
 	}
 	return i, nil
+}
+
+func Exist(i interface{}, id int) bool {
+	c := 0
+	db.Model(i).Where("id=?", id).Count(&c)
+	return c != 0
 }
