@@ -3,7 +3,7 @@ address=":8080"
 #数据库账户
 username="root"
 #密码
-password=""
+password="1997"
 #注册密码salt
 pass_salt="dawndevil"
 #登录salt
