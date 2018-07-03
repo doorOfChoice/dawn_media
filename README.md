@@ -74,12 +74,14 @@ media_map="/static/media/video/"
 
 ```go
     go get github.com/doorOfChoice/media_back
+    cd github.com/doorOfChoice/media_back
     //======windows
-        go build -o server.exe
-        server.exe
+    go build -o server.exe
+    server.exe
+
     //======linux
-        go build -o server
-        ./server
+    go build -o server
+    ./server
 ```
 
 ## 页面
