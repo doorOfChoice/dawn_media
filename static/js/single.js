@@ -16,15 +16,15 @@ $(function () {
     var comments = $("#comments");
     var media_id = $("#media_id").val();
     var read_more = $("#read-more-comments");
+    var pageTpl = "<p>总评:<%:=page.Count%></p>";
     var tpl = `
-        <p>总评: <%:=page.Count%></p>
         <%for(var i = 0; i < comments.length; i++){%>
         <div class="row">
-        <div class="col-md-2">
+        <div class="col-xs-12 col-md-2">
             <img class="user-head-medium" src="<%:=avatarMap%><%:=comments[i].User.Avatar%>" alt="">
             <center><span><%:=comments[i].User.Nickname%></span></center>
         </div>
-        <div class="col-md-10">
+        <div class="col-xs-12 col-md-10">
             <p><%:=comments[i].CreatedAt%></p>
             <%if(comments[i].ParentComment != null){%>
                 <div class="alert alert-danger" role="alert">
@@ -41,6 +41,7 @@ $(function () {
             <p><b><span data-id="<%:=comments[i].ID%>" onclick="replyOnclick(this)">回复</span></b></p>
         </div>
         </div>
+        <div class="line"></div>
         <%}%>
     `;
     template.registerFunction("getParentUser", function (parentComment) {
@@ -60,7 +61,7 @@ $(function () {
                 for(var i = 0; i < cs.length; i++) {
                     cs[i].CreatedAt = moment(cs[i].CreatedAt).format("YYYY年M月D  H:mm:ss");
                 }
-                var result = template(tpl, {
+                var result = template(pageTpl + tpl, {
                     comments :cs,
                     avatarMap : rep.data.data.avatarMap,
                     page:page,
@@ -74,7 +75,6 @@ $(function () {
                 }
             })
     }
-    load( "/comments?id=" + media_id + "&" + "curTime=" + moment().unix());
     read_more.click(function (e) {
         var uri = $(this).attr("next-link");
         if(uri !== "#") {
@@ -98,6 +98,33 @@ $(function () {
         }).catch(function (err) {
             alert(err.response.data.error);
         });
+    });
+
+    $("#star-btn").click(function (e) {
+        var that = this;
+       axios.post("/media/star", {
+           "media_id" : media_id
+       }).then(function (rep) {
+            var data = rep.data.data;
+            $(that).find(".star-count").text(data.count);
+            var heart = $(that).find("i");
+            if(data.create) {
+                heart.addClass("red");
+            }else {
+                heart.removeClass("red");
+            }
+       }).catch(function (err) {
+           alert(err.response.data.error);
+       });
+    });
+
+    load( "/comments?id=" + media_id + "&" + "curTime=" + moment().unix());
+    var player = videojs('video');
+    player.videoJsResolutionSwitcher();
+    player.on('error', function (e) {
+       console.log(e);
+       player.error(null);
+       player.play();
     });
 
 });

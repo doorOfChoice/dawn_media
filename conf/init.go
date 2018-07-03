@@ -6,6 +6,8 @@ import (
 
 type Conf struct {
 	Address     string `toml:"address"`
+	Username    string `toml:"username"`
+	Password    string `toml:"password"`
 	PassSalt    string `toml:"pass_salt"`
 	LoginSalt   string `toml:"login_salt"`
 	SessionName string `toml:"session_name"`

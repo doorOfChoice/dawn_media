@@ -34,6 +34,9 @@ func (c *Category) Update() error {
 	}
 }
 
+/**
+获取没有删除的所有分类
+ */
 func GetCategories() []*Category {
 	categories := make([]*Category, 0)
 	db.Where("soft_delete=?", 1).Find(&categories)

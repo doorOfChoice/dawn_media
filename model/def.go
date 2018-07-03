@@ -13,7 +13,9 @@ import (
 )
 
 const (
+	//普通用户权限
 	COMMONUSER = 1
+	//管理员权限
 	ADMIN      = 2
 )
 
@@ -21,7 +23,7 @@ type Model struct {
 	ID        int `gorm:"primary_key" `
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	//1 undelete 2 delete
+	//SoftDelete两种状态，1未删除，2删除
 	SoftDelete int `gorm:"default:1"`
 }
 
@@ -91,6 +93,9 @@ type Comment struct {
 	Content         string `gorm:"varchar(1000);not null" json:"Content"`
 }
 
+/**
+自定义的分页类
+ */
 type Page struct {
 	Limit    int
 	CurPage  int
@@ -99,8 +104,11 @@ type Page struct {
 	NextPage int
 	Count    int
 	CurCount int
+	//根据网页自动生成下一页，可以附带原先的查询字符串
 	PrevLink string
+	//根据网页自动生成上一页，可以附带原先的查询字符串
 	NextLink string
+
 	c        *gin.Context
 }
 
@@ -128,6 +136,7 @@ func DefaultPage(c *gin.Context) *Page {
 
 /**
 查找数据并且生成分页信息
+i 为slice的地址
 */
 func (p *Page) Find(i interface{}, db *gorm.DB, delete ...bool) {
 	curDB := db.Model(i)
@@ -218,6 +227,9 @@ func FindById(i interface{}, id int) (interface{}, error) {
 	return i, nil
 }
 
+/**
+根据ID判断对象是否存在
+ */
 func Exist(i interface{}, id int) bool {
 	c := 0
 	db.Model(i).Where("id=?", id).Count(&c)

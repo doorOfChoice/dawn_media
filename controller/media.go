@@ -10,8 +10,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
-	"strings"
 	"strconv"
+	"strings"
+	"log"
 )
 
 type mediaAttributeDto struct {
@@ -70,6 +71,23 @@ func PageMediaManage(c *gin.Context) {
 		"data":  medias,
 		"trash": trash,
 		"page":  page,
+	}, c))
+}
+
+/**
+用户点过赞视频
+ */
+func PageODStaredMedias(c *gin.Context) {
+	var authUser *model.User
+	if t, ok := c.Get("authUser"); ok {
+		authUser = t.(*model.User)
+	}
+	page := model.DefaultPage(c)
+	medias := make([]*model.Media, 0)
+	page.Find(&medias, model.StaredMediasDB(authUser.ID))
+	c.HTML(http.StatusOK, "ordinary/stared_medias", h(gin.H{
+		"medias" : medias,
+		"page" : page,
 	}, c))
 }
 
@@ -155,7 +173,7 @@ func MediaAdd(c *gin.Context) {
 	var err error
 	if err = dealMediaFile(c, media, hookFile(c)); err == nil {
 		if err = media.Create(); err == nil {
-			redirectOK(c, "/admin/media/update/" + strconv.Itoa(media.ID), "创建媒体成功")
+			redirectOK(c, "/admin/media/update/"+strconv.Itoa(media.ID), "创建媒体成功")
 			return
 		}
 	}
@@ -214,6 +232,7 @@ func dealMediaFile(c *gin.Context, m *model.Media, infos []mediaAttributeDto) er
 	}
 	for _, info := range infos {
 		ma := &model.MediaAttribute{Description: info.description}
+		log.Println(ma)
 		m.MediaAttributes = append(m.MediaAttributes, ma)
 		base := filepath.Base(info.file.Filename)
 		if info.file == nil ||

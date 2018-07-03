@@ -57,7 +57,7 @@ func MiddlewareOrdinaryAuth() gin.HandlerFunc {
 }
 
 /**
-普通用户后台管理中间件
+前台中间件
 */
 func MiddlewareIndexAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -17,15 +17,20 @@ func format(t time.Time) string {
 	return fmt.Sprintf("%d-%02d-%02d", y, m, d)
 }
 
+func formatDetail(t time.Time) string {
+	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
+}
+
 func main() {
-	model.Init()
 	conf.Init()
+	model.Init()
 	store := cookie.NewStore([]byte(conf.C().PassSalt))
 	r := gin.Default()
 	r.Use(sessions.Sessions(conf.C().SessionName, store))
 	//先设置函数，因为解析模板的时候回解析函数
 	r.SetFuncMap(template.FuncMap{
-		"formatDate": format,
+		"formatDate":   format,
+		"formatDetail": formatDetail,
 	})
 	r.LoadHTMLGlob("views/**/*")
 	r.Static("/static", "./static")
@@ -58,6 +63,9 @@ func main() {
 		auth.POST("/user/update/:id", controller.UserUpdate)
 		auth.POST("/user/delete", controller.UserDelete)
 		auth.POST("/user/recover", controller.UserRecover)
+
+		auth.GET("/manage_comment", controller.PageUserComment)
+		auth.POST("/comment/delete", controller.CommentDelete)
 	}
 
 	ordinary := r.Group("/ordinary")
@@ -67,8 +75,11 @@ func main() {
 		ordinary.GET("/info_update", controller.PageODUserChangeInfo)
 		ordinary.GET("/pwd_update", controller.PageODUserChangePwd)
 		ordinary.GET("/user_record", controller.PageODUserRecord)
+		ordinary.GET("/user_comment", controller.PageODUserComment)
+		ordinary.GET("/stared_medias", controller.PageODStaredMedias)
 		ordinary.POST("/info_update", controller.ODUserChangeInfo)
 		ordinary.POST("/pwd_update", controller.ODUserChangePwd)
+		ordinary.POST("/comment/delete", controller.ODCommentDelete)
 	}
 
 	front := r.Group("/")
@@ -79,6 +90,7 @@ func main() {
 		front.GET("/single", controller.PageFrontSingle)
 		front.GET("/comments", controller.GetComments)
 		front.POST("/comments", controller.CommentCreate)
+		front.POST("/media/star", controller.StarToggle)
 	}
 
 	//普通页面

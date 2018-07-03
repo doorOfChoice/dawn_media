@@ -1,26 +1,35 @@
 package controller
 
 import (
-	"errors"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"media_framwork/conf"
+	"net/http"
 	"media_framwork/model"
 	"media_framwork/tool"
-	"net/http"
-	"path/filepath"
+	"media_framwork/conf"
 	"strconv"
+	"path/filepath"
+	"errors"
+	"github.com/google/uuid"
+	"github.com/gin-contrib/sessions"
 )
 
+/**
+注册页面
+ */
 func PageRegister(c *gin.Context) {
 	c.HTML(http.StatusOK, "common/register", h(gin.H{}, c))
 }
 
+/**
+登录页面
+ */
 func PageLogin(c *gin.Context) {
 	c.HTML(http.StatusOK, "common/login", h(gin.H{}, c))
 }
 
+/**
+Admin管理页面
+ */
 func PageUserManage(c *gin.Context) {
 	curDB := model.DB()
 	trash := c.DefaultQuery("trash", "0")
@@ -34,6 +43,9 @@ func PageUserManage(c *gin.Context) {
 	}, c))
 }
 
+/**
+Admin更新页面
+ */
 func PageUserUpdate(c *gin.Context) {
 	id := tool.GetInt(c.Param("id"))
 	user := &model.User{}
@@ -47,18 +59,30 @@ func PageUserUpdate(c *gin.Context) {
 	}, c))
 }
 
+/**
+Admin添加用户
+ */
 func PageUserAdd(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/user_add", h(gin.H{}, c))
 }
 
+/**
+Admin修改密码
+ */
 func PageODUserChangePwd(c *gin.Context) {
 	c.HTML(http.StatusOK, "ordinary/update_pwd", h(gin.H{}, c))
 }
 
+/**
+Admin修改Info
+ */
 func PageODUserChangeInfo(c *gin.Context) {
 	c.HTML(http.StatusOK, "ordinary/update_info", h(gin.H{}, c))
 }
 
+/**
+用户修改信息控制器
+ */
 func ODUserChangeInfo(c *gin.Context) {
 	var authUser *model.User
 	uri := "/ordinary/info_update"
@@ -66,6 +90,8 @@ func ODUserChangeInfo(c *gin.Context) {
 		authUser = t.(*model.User)
 	}
 	authUser.Nickname = c.PostForm("nickname")
+	authUser.Password = ""
+
 	v := MyValidator{}
 	v.ValidateODUserUpdate(authUser)
 	if redirectNotPass(c, uri, v) {
@@ -75,9 +101,16 @@ func ODUserChangeInfo(c *gin.Context) {
 		redirectError(c, uri, err.Error())
 		return
 	}
+	if err := authUser.Update(); err != nil {
+		redirectError(c, uri, err.Error())
+		return
+	}
 	redirectOK(c, uri, "更新基本信息成功")
 }
 
+/**
+用户修改密码控制器
+ */
 func ODUserChangePwd(c *gin.Context) {
 	var authUser *model.User
 	uri := "/ordinary/pwd_update"
@@ -113,6 +146,9 @@ func ODUserChangePwd(c *gin.Context) {
 	redirectOK(c, uri, "更新密码成功")
 }
 
+/**
+用户添加控制器
+ */
 func UserAdd(c *gin.Context) {
 	user := &model.User{}
 	user.Username = c.PostForm("username")
@@ -137,6 +173,9 @@ func UserAdd(c *gin.Context) {
 	redirectError(c, "/admin/new_user", err.Error())
 }
 
+/**
+用户更新控制器
+ */
 func UserUpdate(c *gin.Context) {
 	uri := "/admin/user/update/" + c.Param("id")
 	id := tool.GetInt(c.Param("id"))
@@ -184,6 +223,9 @@ func dealAvatar(c *gin.Context, user *model.User) error {
 	}
 }
 
+/**
+用户冻结
+ */
 func UserDelete(c *gin.Context) {
 	userIds := tool.GetInts(c.PostFormArray("user_ids"))
 	if err := model.Delete(&model.User{}, userIds...); err != nil {
@@ -193,6 +235,9 @@ func UserDelete(c *gin.Context) {
 	redirectOK(c, "/admin/manage_user", "冻结成功")
 }
 
+/**
+用户恢复
+ */
 func UserRecover(c *gin.Context) {
 	userIds := tool.GetInts(c.PostFormArray("user_ids"))
 	if err := model.Recover(&model.User{}, userIds...); err != nil {
@@ -202,6 +247,9 @@ func UserRecover(c *gin.Context) {
 	redirectOK(c, "/admin/manage_user", "恢复成功")
 }
 
+/**
+注册控制器
+ */
 func Register(c *gin.Context) {
 	uri := "/register"
 	user := &model.User{}
@@ -230,6 +278,9 @@ func Register(c *gin.Context) {
 	redirect(c, "/login", nil)
 }
 
+/**
+登录控制器
+ */
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
@@ -243,14 +294,18 @@ func Login(c *gin.Context) {
 			redirectError(c, "/login", "用户已被冻结")
 			return
 		}
-		if u.Authority == model.ADMIN {
-			redirectOK(c, "/admin", "登录成功")
-		}else {
-			redirectOK(c, "/ordinary", "登录成功")
-		}
+		//if u.Authority == model.ADMIN {
+		//	redirectOK(c, "/admin", "登录成功")
+		//}else {
+		//	redirectOK(c, "/ordinary", "登录成功")
+		//}
+		redirectOK(c, "/", "登录成功")
 	}
 }
 
+/**
+注销
+ */
 func LogOut(c *gin.Context) {
 	c.SetCookie(conf.C().SessionName, "", 0, "/", "", false, false)
 	redirectOK(c, "/login", "")

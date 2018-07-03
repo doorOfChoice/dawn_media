@@ -35,7 +35,6 @@
           <div class="">
             <div class="page-title">
               <div class="title_left">
-                <h3>用户 <small>冻结你的梦想</small></h3>
               </div>
 
               <div class="title_right">
@@ -133,11 +132,15 @@
                       </tbody>
                     </table>
                     <!-- end project list -->
-                  {{if eq .page.CurCount 0}}
+                  {{if eq (len .users) 0}}
                       <center style="font-size: 1.5em;">空空如也🤣</center>
                   {{end}}
                   <div style="display: inline-block;">
                       <nav aria-label="...">
+                          <ul class="pager">
+                              <li>页面:{{.page.CurPage}}/{{.page.MaxPage}}</li>
+                              <li>数量:{{len .users}}/{{.page.Limit}}</li>
+                          </ul>
                           <ul class="pager">
                               <li><a href="{{.page.PrevLink}}">Previous</a></li>
                               <li><a href="{{.page.NextLink}}">Next</a></li>

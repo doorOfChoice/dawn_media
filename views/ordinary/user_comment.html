@@ -1,4 +1,4 @@
-{{define "admin/mediaManage"}}
+{{define "ordinary/user_comment"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,14 +27,14 @@
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
-    {{template "admintpl/navigator" .}}
+    {{template "ordinarytpl/navigator" .}}
         <!-- page content -->
         <div class="right_col" role="main">
             <div class="">
                 <div class="page-title">
                     <div class="title_left">
-                        <h3>媒体
-                            <small>为梦想而生</small>
+                        <h3>评论
+                            <small>获取你的色彩</small>
                         </h3>
                     </div>
 
@@ -62,7 +62,7 @@
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <div class="x_panel">
                             <div class="x_title">
-                                <h2>分类管理 <small>总数:{{.page.Count}}</small></h2>
+                                <h2>评论管理 <small>总数:{{.page.Count}}</small></h2>
                                 <ul class="nav navbar-right panel_toolbox">
                                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                                     </li>
@@ -81,102 +81,79 @@
                             </div>
 
                         {{/*单个删除表单*/}}
-                            <form hidden id="single-delete-form" action="/admin/media/delete" method="POST"
-                                  enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="media_ids" value="{{.ID}}"/>
-                            </form>
-                        {{/*单个恢复表单*/}}
-                            <form hidden id="single-recover-form" action="/admin/media/recover" method="POST"
-                                  enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="media_ids" value="{{.ID}}"/>
-                            </form>
-                        {{template "admintpl/alert" .}}
+                        <form hidden id="single-delete-form" action="/ordinary/comment/delete" method="POST"
+                              enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="comment_ids" value="{{.ID}}"/>
+                        </form>
+                        {{template "ordinarytpl/alert" .}}
                         {{/*批量删除*/}}
-                        {{if eq .trash "0"}}
-                        <form action="/admin/media/delete" method="POST" id="submit-form"
+                        <form action="/ordinary/comment/delete" method="POST" id="submit-form"
                               enctype="application/x-www-form-urlencoded">
-                        {{else}}
-                        <form action="/admin/media/recover" method="POST" id="submit-form"
-                              enctype="application/x-www-form-urlencoded">
-                        {{end}}
                             <div class="x_content">
-
-                                <div class="table-responsive">
-                                    <table class="table table-striped jambo_table bulk_action">
-                                        <thead>
-                                        <tr class="headings">
-                                            <th>
-                                            </th>
-                                            <th class="column-title">ID</th>
-                                            <th class="column-title">创建日期</th>
-                                            <th class="column-title">修改日期</th>
-                                            <th class="column-title">片名</th>
-                                            <th class="column-title no-link last"><span class="nobr">Action</span>
-                                            </th>
-                                            <th class="bulk-actions" colspan="7">
-                                                <a class="antoo" style="color:#fff; font-weight:500;">Bulk Actions (
-                                                    <span class="action-cnt"> </span> ) <i
-                                                            class="fa fa-chevron-down"></i></a>
-                                            </th>
-                                        </tr>
-                                        </thead>
-
-                                        <tbody>
-                                        {{range .data}}
-                                        <tr class="even pointer">
-                                            <td class="a-center ">
-                                                <input type="checkbox" class="flat" name="media_ids" value="{{.ID}}">
-                                            </td>
-                                            <td class=" ">{{.ID}}</td>
-                                            <td class=" ">{{.CreatedAt | formatDate}} </td>
-                                            <td class=" ">{{.UpdatedAt | formatDate}}</td>
-                                            <td class=" ">{{.Title}}</td>
-                                            <td class=" last">
-                                                {{/*<button class="btn btn-success single-update" style="float:left"*/}}
-                                                        {{/*data-id="{{.ID}}">修改*/}}
-                                                {{/*</button>*/}}
-                                            {{/*{{if eq $.trash "0"}}*/}}
-                                                {{/*<button class="btn btn-danger single-delete"*/}}
-                                                        {{/*data-id="{{.ID}}" style="float:left">删除*/}}
-                                                {{/*</button>*/}}
-                                            {{/*{{else}}*/}}
-                                                {{/*<button class="btn btn-primary single-recover"*/}}
-                                                        {{/*data-id="{{.ID}}" style="float:left">恢复*/}}
-                                                {{/*</button>*/}}
-                                            {{/*{{end}}*/}}
-                                                    <a href="/admin/media/update/{{.ID}}" class="btn btn-info btn-xs"><i class="fa fa-pencil"></i> 编辑 </a>
-                                                {{if eq $.trash "0"}}
-                                                    <a href="javascript:void(0)" class="btn btn-danger btn-xs single-delete"  data-id="{{.ID}}"><i class="fa fa-trash-o"></i> 删除 </a>
-                                                {{else }}
-                                                    <a href="javascript:void(0)" class="btn btn-primary btn-xs single-recover"  data-id="{{.ID}}"><i class="fa fa-trash-o"></i> 恢复 </a>
-                                                {{end}}
-                                            </td>
-                                        </tr>
+                                    <div class="row">
+                                        <div class="clearfix"></div>
+                                        {{range .comments}}
+                                        <div class="col-md-12 col-sm-12 col-xs-12 profile_details">
+                                            <input type="checkbox" value={{.ID}} name="comment_ids">选中
+                                            <div class="well profile_view" style="width: 100%;">
+                                                <div class="col-sm-12">
+                                                    <div class="left col-xs-7">
+                                                        <h2>在《{{.Media.Title}}》下留言</h2>
+                                                        <h2>
+                                                        {{if .ParentComment}}
+                                                        回复 {{.ParentComment.User.Nickname}}
+                                                        {{end}}
+                                                        </h2>
+                                                        <br>
+                                                        <p><strong>内容: </strong>{{.Content}}</p>
+                                                        <ul class="list-unstyled">
+                                                            <li><i class="fa fa-building"></i> {{.CreatedAt | formatDetail}}</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="right col-xs-5 text-center">
+                                                        <img src="images/img.jpg" alt="" class="img-circle img-responsive">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 bottom text-center">
+                                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                                        <p class="ratings">
+                                                            <a>4.0</a>
+                                                            <a href="#"><span class="fa fa-star"></span></a>
+                                                            <a href="#"><span class="fa fa-star"></span></a>
+                                                            <a href="#"><span class="fa fa-star"></span></a>
+                                                            <a href="#"><span class="fa fa-star"></span></a>
+                                                            <a href="#"><span class="fa fa-star-o"></span></a>
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                                        <button type="button" class="btn btn-danger btn-xs single-delete" data-id="{{.ID}}" >
+                                                            <i class="fa fa-trash"> </i> 删除
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {{end}}
-                                        </tbody>
-                                    </table>
-                                {{if eq (len .data) 0}}
+                                {{if eq (len .comments) 0}}
                                     <center style="font-size: 1.5em;">空空如也🤣</center>
                                 {{end}}
                                 </div>
                             </div>
-                            {{if eq .trash "0"}}
                             <input type="submit" class="btn btn-danger" value="批量删除" id="submit-btn">
-                            {{else}}
-                             <input type="submit" class="btn btn-primary" value="批量恢复" id="submit-btn">
-                             {{end}}
+
                         </form>
                             <div style="display: inline-block;">
                                 <nav aria-label="...">
                                     <ul class="pager">
                                         <li>页面:{{.page.CurPage}}/{{.page.MaxPage}}</li>
-                                        <li>数量:{{len .data}}/{{.page.Limit}}</li>
+                                        <li>数量:{{len .comments}}/{{.page.Limit}}</li>
                                     </ul>
                                     <ul class="pager">
                                         <li><a href="{{.page.PrevLink}}">Previous</a></li>
                                         <li><a href="{{.page.NextLink}}">Next</a></li>
                                     </ul>
                                 </nav>
+
                             </div>
                         </div>
                     </div>
@@ -187,7 +164,7 @@
     <!-- /page content -->
 
     <!-- footer content -->
-{{template  "admintpl/footer" .}}
+{{template  "ordinarytpl/footer" .}}
     <!-- /footer content -->
 </div>
 </div>
@@ -219,14 +196,14 @@
     });
     $(".single-delete").click(function (e) {
         var id = $(this).attr("data-id");
-        singleDeleteForm.find('input[name="media_ids"]').val(id);
+        singleDeleteForm.find('input[name="comment_ids"]').val(id);
         $(this).attr("disabled", true);
         singleDeleteForm.submit();
         return false;
     });
     $(".single-recover").click(function (e) {
         var id = $(this).attr("data-id");
-        singleRecoverForm.find('input[name="media_ids"]').val(id);
+        singleRecoverForm.find('input[name="comment_ids"]').val(id);
         $(this).attr("disabled", true);
         singleRecoverForm.submit();
         return false;

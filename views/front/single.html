@@ -1,41 +1,6 @@
 {{define "front/single"}}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="">
-    <meta name="author" content="">
-	
-    <title>KoolTube</title>
-	
-    <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css"  type="text/css">
-	
-	<!-- Custom CSS -->
-    <link rel="stylesheet" href="/static/css/style2.css">
-	
-	<!-- Owl Carousel Assets -->
-    <link href="/static/owl-carousel/owl.carousel.css" rel="stylesheet">
-    <link href="/static/owl-carousel/owl.theme.css" rel="stylesheet">
-	
-	<!-- Custom Fonts -->
-    <link rel="stylesheet" href="/static/font-awesome-4.4.0/css/font-awesome.min.css"  type="text/css">
-    <link rel="stylesheet" href="/static/css/custom.css">
-	<!-- jQuery and Modernizr-->
-	<script src="/static/js/jquery-2.1.1.js"></script>
-	
-	<!-- Core JavaScript Files -->  	 
-    <script src="/static/js/bootstrap.min.js"></script>
-	
-    <script src="/static/js/html5shiv.js"></script>
-    <script src="/static/js/respond.min.js"></script>
-    <script src="/static/js/axios.min.js"></script>
-    <script src="/static/js/template.js"></script>
-    <script src="/static/js/moment.js"></script>
-    <script src="/static/js/single.js"></script>
-</head>
 <body>
 {{template "front/navigator" .}}
 	<!-- /////////////////////////////////////////Content -->
@@ -43,15 +8,34 @@
 		<div class="container">
 			<div class="row">
 				<div id="main-content" class="col-md-8">
-					<div class="wrap-vid">
-						<iframe width="100%" height="400" src="https://www.youtube.com/embed/ImMw_5byGmA" frameborder="0" allowfullscreen></iframe>
-					</div>
-					<div class="line"></div>
+                    <input type="hidden" id="media_id" value="{{.media.ID}}">
                    {{with .media}}
-                    <h1 class="vid-name"><a href="#">{{.Title}}</a></h1>
+                       <!--播放器代码-->
+                       <div class="wrap-vid" >
+                           <video id="video" class="video-js vjs-default-skin"
+                                  controls preload="auto"
+                                  style="width: 100%"
+                                  height="480"
+                                  data-setup="{}"
+                                  autoplay
+                                  default="low"
+                                  dynamicLabel="true"
+                                  poster="{{$.coverMap}}{{.Cover}}" >
+                               {{range  .MediaAttributes}}
+                                       {{if .Uri}}
+                                    <source src="{{$.mediaMap}}{{.Uri}}" type='video/mp4' label="{{.Description}}" res="清晰度">
+                                               {{end}}
+                               {{end}}
+                               <p class="vjs-no-js">
+                                   To view this video please enable JavaScript, and consider upgrading to a web browser that
+                               </p>
+                           </video>
+                       </div>
+                       <div class="line"></div>
+                       <h1 class="vid-name"><a href="#">{{.Title}}</a></h1>
 					<div class="info">
 						<span><i class="fa fa-calendar"></i>{{.CreatedAt | formatDate}}</span>
-						<span><i class="fa fa-heart"></i>1,200</span>
+						<span id="star-btn" class="hand"><i class="fa fa-heart {{if $.hasStared}}red{{end}}"></i><span class="star-count">{{.StarCount}}</span></span>
 					</div>
                     <p>每一段视频都是一个值得品味的故事</p>
                     <h4>视频简介</h4>
@@ -72,7 +56,6 @@
                             <div class="row" id="comment-box">
                                 <div class="col-md-12">
                                     <input type="hidden" id="parent_id" value="0">
-                                    <input type="hidden" id="media_id" value="{{.media.ID}}">
                                     <div class="form-group">
                                         <textarea name="message" id="comment-content" class="form-control" rows="4" cols="10" required="required"
                                         placeholder="你想说啥啊大哥"></textarea>
@@ -127,28 +110,9 @@
 		</div>
 	</div>
 
-	<footer>
-		<div class="bottom-footer">
-			<div class="container">
-				<div class="row">
-					<div class="col-md-6 col-sm-6 copyright">
-						<span>Copyright &copy; 2015.Company name All rights reserved.<a target="_blank" href="http://www.cssmoban.com/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a></span>
-					</div>
-					<div class="col-md-6 col-sm-6 link">
-						<div class="menu-footer-menu-container">
-							<ul id="menu-footer-menu" class="menu list-inline">
-								<li><a href="#"><i class="fa fa-home"></i> Home</a></li>
-								<li><a href="#"><i class="fa fa-comments"></i> Contact</a></li>
-								<li><a href="#"><i class="fa fa-question-circle"></i> FAQ</a></li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div> 
-	</footer>
+	{{template "front/footer" .}}
 	<!-- Footer -->
-	
+
 	<!-- JS -->
 	<script src="/static/owl-carousel/owl.carousel.js"></script>
     <script>
@@ -162,7 +126,54 @@
 
     });
     </script>
-	
+
 </body>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>dawndevil影院</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css"  type="text/css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style2.css">
+
+    <!-- Owl Carousel Assets -->
+    <link href="/static/owl-carousel/owl.carousel.css" rel="stylesheet">
+    <link href="/static/owl-carousel/owl.theme.css" rel="stylesheet">
+    <!-- video.css -->
+    <link rel="stylesheet" href="/static/css/video.css">
+    <!-- video-resolution-switcher.css -->
+    <link rel="stylesheet" href="/static/css/videojs-resolution-switcher.css">
+
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/static/font-awesome-4.4.0/css/font-awesome.min.css"  type="text/css">
+
+
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <script src="/static/js/jquery-2.1.1.js"></script>
+    <!--可能是因为版本的问题-->
+    <!-- video.js -->
+    <script src="/static/js/video.js"></script>
+    <!-- video-resolution-switcher.js -->
+    <script src="/static/js/videojs-resolution-switcher.js"></script>
+
+    <!-- Core JavaScript Files -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/html5shiv.js"></script>
+    <script src="/static/js/respond.min.js"></script>
+    <script src="/static/js/axios.min.js"></script>
+    <script src="/static/js/template.js"></script>
+    <script src="/static/js/moment.js"></script>
+    <script src="/static/js/single.js"></script>
+
+
+</head>
 </html>
 {{end}}

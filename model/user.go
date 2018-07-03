@@ -6,6 +6,10 @@ import (
 	"media_framwork/tool"
 )
 
+/**
+创建用户
+第一个用户为管理员
+*/
 func (u *User) Create() error {
 	count := 0
 	db.
@@ -15,6 +19,7 @@ func (u *User) Create() error {
 	if count > 0 {
 		return errors.New("用户已经被注册")
 	}
+
 	db.Model(u).Count(&count)
 	if count == 0 {
 		u.Authority = ADMIN
@@ -23,6 +28,9 @@ func (u *User) Create() error {
 	return db.Save(u).Error
 }
 
+/**
+更新用户
+*/
 func (u *User) Update() error {
 	user := &User{}
 	user.ID = u.ID
@@ -39,6 +47,9 @@ func (u *User) Update() error {
 	return db.Model(user).Update(user).Error
 }
 
+/**
+获取用户详细信息
+*/
 func (u *User) Get() error {
 	count := 0
 	db.Find(u).Count(&count)
@@ -48,6 +59,22 @@ func (u *User) Get() error {
 	return nil
 }
 
+/**
+获取管理员主页上最新注册的用户
+*/
+func GetAdminIndexNewUser() []*User {
+	users := make([]*User, 0)
+	db.
+		Where("soft_delete=1").
+		Order("created_at desc").
+		Limit(5).
+		Find(&users)
+	return users
+}
+
+/**
+通过用户名和密码获取用户
+*/
 func FindUserByLogin(username, password string) (*User, error) {
 	count := 0
 	user := &User{}

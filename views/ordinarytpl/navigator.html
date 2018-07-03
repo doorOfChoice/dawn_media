@@ -8,7 +8,7 @@
     <!-- menu profile quick info -->
     <div class="profile clearfix">
         <div class="profile_pic">
-            <img src="{{.avatarMap}}{{.authUser.Avatar}}" alt="..." class="img-circle profile_img">
+            <img src="{{.avatarMap}}{{.authUser.Avatar}}" alt="..." class="img-circle profile_img" style="width:64px;height:64px;">
         </div>
         <div class="profile_info">
             <span>欢迎你, </span>
@@ -33,10 +33,11 @@
                         <li><a href="/ordinary/pwd_update">修改密码</a></li>
                         <li><a href="/ordinary/info_update">修改基本信息</a></li>
                         <li><a href="/ordinary/user_record">浏览记录</a></li>
+                        <li><a href="/ordinary/stared_medias">赞过的视频</a></li>
                     </ul>
                 </li>
 
-                <li><a href="/ordinary"><i class="fa fa-comment"></i> 评论<span class="fa"></span></a>
+                <li><a href="/ordinary/user_comment"><i class="fa fa-comment"></i> 评论<span class="fa"></span></a>
 
             </ul>
         </div>

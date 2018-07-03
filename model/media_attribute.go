@@ -6,6 +6,9 @@ import (
 	"strconv"
 )
 
+/**
+更新媒体属性
+ */
 func (ma *MediaAttribute) Update(i ...interface{}) error {
 	var tx *gorm.DB
 	if len(i) != 0 {
@@ -19,6 +22,9 @@ func (ma *MediaAttribute) Update(i ...interface{}) error {
 	return tx.Model(ma).Update(ma).Error
 }
 
+/**
+创建媒体属性
+ */
 func (ma *MediaAttribute) Create(i ...interface{}) error {
 	var tx *gorm.DB
 	if len(i) != 0 {

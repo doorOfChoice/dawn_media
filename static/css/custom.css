@@ -43,3 +43,10 @@ p {
     word-wrap: break-word;
 }
 
+.red {
+    color:red;
+}
+
+.hand {
+    cursor: pointer;
+}
