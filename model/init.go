@@ -17,7 +17,7 @@ func Init() {
 	if db != nil {
 		return
 	}
-	uri := fmt.Sprintf("%s:%s@/media_web?charset=utf8&parseTime=True&loc=Local", conf.C().Username, conf.C().Password)
+	uri := fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local", conf.C().Username, conf.C().Password, conf.C().Database)
 	t, err := gorm.Open("mysql", uri)
 	if err != nil {
 		panic(err)

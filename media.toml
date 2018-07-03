@@ -4,6 +4,8 @@ address=":8080"
 username="root"
 #密码
 password="1997"
+#数据库名称
+database="media_web"
 #注册密码salt
 pass_salt="dawndevil"
 #登录salt

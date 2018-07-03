@@ -8,6 +8,7 @@ type Conf struct {
 	Address     string `toml:"address"`
 	Username    string `toml:"username"`
 	Password    string `toml:"password"`
+	Database    string `toml:"database"`
 	PassSalt    string `toml:"pass_salt"`
 	LoginSalt   string `toml:"login_salt"`
 	SessionName string `toml:"session_name"`
