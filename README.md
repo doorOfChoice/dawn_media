@@ -78,7 +78,7 @@ media_map="/static/media/video/"
 ```go
     #在GOPATH下Clone
     git clone github.com/doorOfChoice/dawn_media
-    cd github.com/doorOfChoice/dawn_media
+    cd dawn_media
     go get .
     //======windows
     go build -o server.exe
