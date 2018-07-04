@@ -2,9 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"media_framwork/conf"
-	"media_framwork/model"
-	"media_framwork/tool"
+	"dawn_media/conf"
+	"dawn_media/model"
+	"dawn_media/tool"
 	"net/http"
 	"strconv"
 	"time"

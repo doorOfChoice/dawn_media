@@ -2,9 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"media_framwork/model"
+	"dawn_media/model"
 	"net/http"
-	"media_framwork/tool"
+	"dawn_media/tool"
 )
 
 /**

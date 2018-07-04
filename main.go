@@ -1,15 +1,17 @@
 package main
 
 import (
+	"dawn_media/conf"
+	"dawn_media/controller"
+	"dawn_media/model"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"html/template"
-	"media_framwork/conf"
-	"media_framwork/controller"
-	"media_framwork/model"
+	"os"
 	"time"
+	"log"
 )
 
 func format(t time.Time) string {
@@ -21,8 +23,23 @@ func formatDetail(t time.Time) string {
 	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
 }
 
+func initDir() {
+	//初始化目录
+	if err := os.MkdirAll(conf.C().AvatarDir, 0755); err != nil {
+		log.Println(err)
+	}
+	if err := os.MkdirAll(conf.C().MediaDir, 0755); err!= nil {
+		log.Println(err)
+	}
+	if err := os.MkdirAll(conf.C().CoverDir, 0755); err != nil {
+		log.Println(err)
+	}
+}
+
 func main() {
 	conf.Init()
+	//初始化目录
+	initDir()
 	model.Init()
 	store := cookie.NewStore([]byte(conf.C().PassSalt))
 	r := gin.Default()

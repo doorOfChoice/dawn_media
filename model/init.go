@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"fmt"
-	"media_framwork/conf"
+	"dawn_media/conf"
 )
 
 var db *gorm.DB

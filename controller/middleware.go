@@ -3,7 +3,7 @@ package controller
 import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"media_framwork/model"
+	"dawn_media/model"
 )
 
 /**

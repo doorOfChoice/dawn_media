@@ -3,8 +3,8 @@ package test
 import (
 	"github.com/google/uuid"
 	"log"
-	"media_framwork/conf"
-	"media_framwork/model"
+	"dawn_media/conf"
+	"dawn_media/model"
 	"path/filepath"
 	"testing"
 )

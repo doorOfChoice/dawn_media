@@ -5,8 +5,8 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"media_framwork/controller"
-	"media_framwork/model"
+	"dawn_media/controller"
+	"dawn_media/model"
 	"testing"
 )
 

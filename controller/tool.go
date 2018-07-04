@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
-	"media_framwork/conf"
-	"media_framwork/model"
+	"dawn_media/conf"
+	"dawn_media/model"
 	"net/http"
 )
 

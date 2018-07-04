@@ -2,8 +2,8 @@ package model
 
 import (
 	"errors"
-	"media_framwork/conf"
-	"media_framwork/tool"
+	"dawn_media/conf"
+	"dawn_media/tool"
 )
 
 /**

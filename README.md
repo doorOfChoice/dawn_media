@@ -41,6 +41,9 @@ username="root"
 #密码
 password=""
 
+#数据库
+database=""
+
 #注册密码salt
 pass_salt="dawndevil"
 
@@ -73,8 +76,10 @@ media_map="/static/media/video/"
 ## 使用
 
 ```go
-    go get github.com/doorOfChoice/media_back
-    cd github.com/doorOfChoice/media_back
+    #在GOPATH下Clone
+    git clone github.com/doorOfChoice/dawn_media
+    cd github.com/doorOfChoice/dawn_media
+    go get .
     //======windows
     go build -o server.exe
     server.exe

@@ -3,9 +3,9 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"media_framwork/model"
-	"media_framwork/tool"
-	"media_framwork/conf"
+	"dawn_media/model"
+	"dawn_media/tool"
+	"dawn_media/conf"
 	"strconv"
 	"path/filepath"
 	"errors"

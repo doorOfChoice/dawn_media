@@ -3,7 +3,7 @@ package controller
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"media_framwork/model"
+	"dawn_media/model"
 	"net/http"
 )
 
