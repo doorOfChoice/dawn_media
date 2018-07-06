@@ -1,3 +1,5 @@
-media/*
-static/media/*
+media
+static/media
+!static/media/avatar/default.png
+!static/media/cover/default.png
 *.exe

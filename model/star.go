@@ -16,8 +16,8 @@ func ToggleStar(uid, mid int) (bool, int, error) {
 	star := &Star{}
 	//查找是否点赞
 	err = db.
-		Model(&Star{}).Find("user_id=? and media_id=?", uid, mid).
-		Find(star).
+		Model(&Star{}).Where("user_id=? and media_id=?", uid, mid).
+		First(star).
 		Count(&count).Error
 	if !Exist(&Media{}, mid) || !Exist(&User{}, uid) {
 		return false, 0, errors.New("媒体或者用户不存在")
@@ -33,7 +33,8 @@ func ToggleStar(uid, mid int) (bool, int, error) {
 		create = false
 		err = db.Delete(star).Error
 	}
-	db.Model(star).Where("media_id=?", mid).Count(&count)
+	//db.Model查询全文的对象时候，尽量不要重复用之前的对象作为参数
+	db.Model(&Star{}).Where("media_id=?", mid).Count(&count)
 	return create, count, err
 }
 /**

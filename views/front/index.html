@@ -30,7 +30,7 @@
     <script src="/static/js/bootstrap.min.js"></script>
     <style>
         img.fix-size {
-            max-width:200px;
+            width:200px;
             height:200px;
         }
     </style>
@@ -128,7 +128,7 @@
 											<img src="{{$.coverMap}}{{$v.Cover}}" />
 										</div>
 										<div class="wrapper">
-											<h5 class="vid-name"><a href="/single?id={{.ID}}">{{$v.Title}}</a></h5>
+											<h5 class="vid-name"><a href="/single?id={{.ID}}" style="font-size: 15px;">{{$v.Title}}</a></h5>
 											<div class="info">
 												<span><i class="fa fa-calendar"></i>{{$v.CreatedAt | formatDate}}</span>
 												<span><i class="fa fa-heart"></i>{{$v.StarCount}}</span>

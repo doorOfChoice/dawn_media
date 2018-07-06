@@ -1,35 +1,35 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+	"dawn_media/conf"
 	"dawn_media/model"
 	"dawn_media/tool"
-	"dawn_media/conf"
-	"strconv"
-	"path/filepath"
 	"errors"
-	"github.com/google/uuid"
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"net/http"
+	"path/filepath"
+	"strconv"
 )
 
 /**
 注册页面
- */
+*/
 func PageRegister(c *gin.Context) {
 	c.HTML(http.StatusOK, "common/register", h(gin.H{}, c))
 }
 
 /**
 登录页面
- */
+*/
 func PageLogin(c *gin.Context) {
 	c.HTML(http.StatusOK, "common/login", h(gin.H{}, c))
 }
 
 /**
 Admin管理页面
- */
+*/
 func PageUserManage(c *gin.Context) {
 	curDB := model.DB()
 	trash := c.DefaultQuery("trash", "0")
@@ -39,13 +39,13 @@ func PageUserManage(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/userManage", h(gin.H{
 		"users": users,
 		"trash": trash,
-		"page" : page,
+		"page":  page,
 	}, c))
 }
 
 /**
 Admin更新页面
- */
+*/
 func PageUserUpdate(c *gin.Context) {
 	id := tool.GetInt(c.Param("id"))
 	user := &model.User{}
@@ -61,28 +61,28 @@ func PageUserUpdate(c *gin.Context) {
 
 /**
 Admin添加用户
- */
+*/
 func PageUserAdd(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/user_add", h(gin.H{}, c))
 }
 
 /**
 Admin修改密码
- */
+*/
 func PageODUserChangePwd(c *gin.Context) {
 	c.HTML(http.StatusOK, "ordinary/update_pwd", h(gin.H{}, c))
 }
 
 /**
 Admin修改Info
- */
+*/
 func PageODUserChangeInfo(c *gin.Context) {
 	c.HTML(http.StatusOK, "ordinary/update_info", h(gin.H{}, c))
 }
 
 /**
 用户修改信息控制器
- */
+*/
 func ODUserChangeInfo(c *gin.Context) {
 	var authUser *model.User
 	uri := "/ordinary/info_update"
@@ -110,7 +110,7 @@ func ODUserChangeInfo(c *gin.Context) {
 
 /**
 用户修改密码控制器
- */
+*/
 func ODUserChangePwd(c *gin.Context) {
 	var authUser *model.User
 	uri := "/ordinary/pwd_update"
@@ -148,14 +148,14 @@ func ODUserChangePwd(c *gin.Context) {
 
 /**
 用户添加控制器
- */
+*/
 func UserAdd(c *gin.Context) {
 	user := &model.User{}
 	user.Username = c.PostForm("username")
 	user.Nickname = c.PostForm("nickname")
 	user.Password = c.PostForm("password")
 	user.Authority = tool.GetInt(c.PostForm("authority"))
-	user.Avatar = "default.jpg"
+	user.Avatar = "default.png"
 	//验证用户用户名和密码的合法性
 	v := MyValidator{}
 	v.ValidateUser(user)
@@ -175,15 +175,28 @@ func UserAdd(c *gin.Context) {
 
 /**
 用户更新控制器
- */
+*/
 func UserUpdate(c *gin.Context) {
+	var authUser *model.User
+	if t, ok := c.Get("authUser"); ok {
+		authUser = t.(*model.User)
+	}
+
 	uri := "/admin/user/update/" + c.Param("id")
 	id := tool.GetInt(c.Param("id"))
 	user := &model.User{}
 	user.ID = id
 	user.Nickname = c.PostForm("nickname")
 	user.Password = c.PostForm("password")
-	user.Authority = tool.GetInt(c.PostForm("authority"))
+
+	selfError := errors.New("")
+	authority := tool.GetInt(c.PostForm("authority"))
+	//判断不能给自己降级
+	if authority == model.COMMONUSER && id == authUser.ID {
+		selfError = errors.New(",你不能给自己降级噢")
+	} else {
+		user.Authority = authority
+	}
 
 	//验证用户用户名和密码的合法性
 	v := MyValidator{}
@@ -195,7 +208,7 @@ func UserUpdate(c *gin.Context) {
 	var err error
 	if err = dealAvatar(c, user); err == nil {
 		if err = user.Update(); err == nil {
-			redirectOK(c, uri, "更新用户成功")
+			redirectOK(c, uri, "更新用户成功"+selfError.Error())
 			return
 		}
 	}
@@ -225,19 +238,31 @@ func dealAvatar(c *gin.Context, user *model.User) error {
 
 /**
 用户冻结
- */
+*/
 func UserDelete(c *gin.Context) {
+	var authUser *model.User
+	if t, ok := c.Get("authUser"); ok {
+		authUser = t.(*model.User)
+	}
 	userIds := tool.GetInts(c.PostFormArray("user_ids"))
+	selfError := errors.New("")
+	//查找有没有冻结自己的ID
+	for i := range userIds {
+		if userIds[i] == authUser.ID {
+			userIds = append(userIds[0:i], userIds[i+1:]...)
+			selfError = errors.New(",不过你不能冻结自己噢")
+		}
+	}
 	if err := model.Delete(&model.User{}, userIds...); err != nil {
 		redirectError(c, "/admin/manage_user", err.Error())
 		return
 	}
-	redirectOK(c, "/admin/manage_user", "冻结成功")
+	redirectOK(c, "/admin/manage_user", "冻结成功"+selfError.Error())
 }
 
 /**
 用户恢复
- */
+*/
 func UserRecover(c *gin.Context) {
 	userIds := tool.GetInts(c.PostFormArray("user_ids"))
 	if err := model.Recover(&model.User{}, userIds...); err != nil {
@@ -249,14 +274,14 @@ func UserRecover(c *gin.Context) {
 
 /**
 注册控制器
- */
+*/
 func Register(c *gin.Context) {
 	uri := "/register"
 	user := &model.User{}
 	user.Username = c.PostForm("username")
 	user.Password = c.PostForm("password")
 	user.Nickname = user.Username
-	user.Avatar = "default.jpg"
+	user.Avatar = "default.png"
 	passwordAgain := c.PostForm("passwordAgain")
 
 	//验证用户用户名和密码的合法性
@@ -280,7 +305,7 @@ func Register(c *gin.Context) {
 
 /**
 登录控制器
- */
+*/
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
@@ -305,7 +330,7 @@ func Login(c *gin.Context) {
 
 /**
 注销
- */
+*/
 func LogOut(c *gin.Context) {
 	c.SetCookie(conf.C().SessionName, "", 0, "/", "", false, false)
 	redirectOK(c, "/login", "")

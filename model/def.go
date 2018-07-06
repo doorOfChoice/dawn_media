@@ -195,6 +195,7 @@ func (p *Page) generateLink() {
 */
 func Delete(i interface{}, ids ...int) error {
 	db.Model(i).Where("id in (?)", ids).Update("soft_delete", 2)
+
 	return db.Error
 }
 

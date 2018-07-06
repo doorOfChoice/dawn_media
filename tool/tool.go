@@ -1,9 +1,9 @@
 package tool
 
 import (
-	"strconv"
 	"crypto/md5"
 	"encoding/hex"
+	"strconv"
 )
 
 func GetInt(v string) int {
@@ -28,18 +28,26 @@ func GetInt64(v string) int64 {
 
 /**
 普通MD5
- */
-func Md5Encode(s string) string	 {
+*/
+func Md5Encode(s string) string {
 	return Md5EncodeWithSalt(s, "")
 }
 
 /**
 加盐MD5操作
- */
+*/
 func Md5EncodeWithSalt(s, salt string) string {
 	m := md5.New()
 	if salt != "" {
 		m.Write([]byte(salt))
 	}
 	return hex.EncodeToString(m.Sum([]byte(s)))
+}
+
+func IsImageType(ext string) bool {
+	return ext == ".jpg" || ext == ".png" || ext == ".gif" || ext == ".jpeg"
+}
+
+func IsMediaType(ext string) bool {
+	return ext == ".mp4" || ext == ".avi" || ext == ".ts"
 }

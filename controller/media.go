@@ -156,7 +156,7 @@ func MediaAdd(c *gin.Context) {
 	media := &model.Media{}
 	media.Title = c.PostForm("title")
 	media.Introduction = c.PostForm("introduction")
-
+	media.Cover = "default.png"
 	v := MyValidator{}
 	v.ValidateMedia(media)
 	if redirectNotPass(c, "/admin/new_media", v) {
@@ -211,7 +211,12 @@ func hookFile(c *gin.Context) []mediaAttributeDto {
 */
 func dealMediaFile(c *gin.Context, m *model.Media, infos []mediaAttributeDto) error {
 	if cover, err := c.FormFile("cover"); err == nil && cover.Size != 0 {
-		filename := uuid.New().String() + filepath.Ext(cover.Filename)
+		ext := filepath.Ext(cover.Filename)
+		//判断封面是否是合法类型
+		if !tool.IsImageType(ext){
+			return errors.New("上传封面格式不是图片格式")
+		}
+		filename := uuid.New().String() + ext
 		if err := c.SaveUploadedFile(cover, conf.C().CoverDir+filename); err == nil {
 			m.Cover = filename
 		}
@@ -223,10 +228,7 @@ func dealMediaFile(c *gin.Context, m *model.Media, infos []mediaAttributeDto) er
 		base := filepath.Base(info.file.Filename)
 		//TODO 验证视频格式
 		//单纯判断名字是否符合
-		if strings.TrimSpace(base) != "." &&
-			ext != ".mp4" &&
-			ext != ".avi" &&
-			ext != ".ts" {
+		if strings.TrimSpace(base) != "." && !tool.IsMediaType(ext){
 			return errors.New(info.description + "文件格式不支持")
 		}
 	}

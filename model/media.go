@@ -72,7 +72,7 @@ func (m *Media) Get() error {
 	m.Categories = make([]*Category, 0)
 	m.MediaAttributes = make([]*MediaAttribute, 0)
 	count := 0
-	db.Find(m).Count(&count)
+	db.Where("soft_delete=1").Find(m).Count(&count)
 	if count == 0 {
 		return errors.New("没有找到媒体文件")
 	}
@@ -109,6 +109,7 @@ func GetIndexHotMedia() []*Media {
 		Where("media.soft_delete=1").
 		Group("media.id").
 		Order("star_count desc").
+		Limit(5).
 		Find(&medias)
 	return medias
 }

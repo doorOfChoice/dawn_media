@@ -127,8 +127,9 @@
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">可选分类</label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
-                          <select class="select2_group form-control" name="categories" id="categories">
-                            {{range .categories}}
+                          <select class="select2_group form-control" name="categories" id="categories" >
+                              <option disabled selected value></option>
+                          {{range .categories}}
                               <option value="{{.ID}}">{{.Name}}</option>
                             {{end}}
                           </select>
@@ -220,8 +221,26 @@
                 $(this).remove();
             });
             cts_choice.append(em);
+            this.selectedIndex = -1;
         });
-
+        // cts.find("option").click(function (e) {
+        //     console.log("123");
+        //     var op = $(this);
+        //     var has_choices = cts_choice.children();
+        //     for(var i = 0; i < has_choices.length; i++) {
+        //         var cur = $(has_choices[i]);
+        //         if(cur.find("span").text() === op.text()){
+        //             return;
+        //         }
+        //     }
+        //     var input = "<input name='ct_ids' type='hidden' value='"+op.val()+"'/>"
+        //     var str = "<span class='label label-primary category'>" +input+ "<span>" + op.text() + "</span>" + " <b>×</b></span>";
+        //     var em = $(str);
+        //     em.click(function (e) {
+        //         $(this).remove();
+        //     });
+        //     cts_choice.append(em);
+        // });
         function showPicture(e) {
             var reads= new FileReader();
             var f= document.getElementById('cover').files[0];
